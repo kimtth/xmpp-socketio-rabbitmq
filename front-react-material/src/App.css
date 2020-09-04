@@ -1,0 +1,16 @@
+body {
+  font-family: Arial,"Meiryo UI";
+  background-image: repeating-linear-gradient(135deg, #ffffff 0%, #a9aaff 100%);
+  min-width: 360px;
+  max-width: 65%;
+  min-height: 80%;
+  max-height: 80%;
+  vertical-align: middle;
+  margin: auto;
+  margin-top: 2em;
+  margin-bottom: 2em;
+}
+
+div[id^='simple-tabpanel'] > div {
+  padding: 10px;
+}
