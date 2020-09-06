@@ -1,4 +1,4 @@
-let postId = 1; // id의 초깃값입니다.
+let postId = 1;
 
 const posts = [
   {
@@ -33,7 +33,7 @@ exports.read = ctx => {
   if (!post) {
     ctx.status = 404;
     ctx.body = {
-      message: '포스트가 존재하지 않습니다.',
+      message: 'Not Exists.',
     };
     return;
   }

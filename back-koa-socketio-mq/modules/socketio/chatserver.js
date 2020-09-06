@@ -3,7 +3,7 @@ const fs = require( 'fs' )
 const path = require( 'path' )
 
 const Koa = require( 'koa' )
-const IO = require( '../' )
+const IO = require( '..' )
 const co = require( 'co' )
 
 const app = new Koa()

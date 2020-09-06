@@ -1,6 +1,7 @@
 import React from 'react';
 import './App.css';
 import Conversation from './Conversation/Conversation';
+import { ConfigProvider } from './Context/ConfigContext';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 
 // use default theme
@@ -16,9 +17,11 @@ const theme = createMuiTheme({
 
 function App() {
   return (
-    <MuiThemeProvider theme={theme}>
-      <Conversation />
-    </MuiThemeProvider>
+    <ConfigProvider>
+      <MuiThemeProvider theme={theme}>
+        <Conversation />
+      </MuiThemeProvider>
+    </ConfigProvider>
   );
 }
 

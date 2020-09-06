@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import TabPanel from '../TabPanel/TabPanel'
 import TextField from '@material-ui/core/TextField';
-import { makeStyles } from '@material-ui/core/styles';
 import SendIcon from '@material-ui/icons/Send';
 import Button from '@material-ui/core/Button';
 import Box from '@material-ui/core/Box';
@@ -19,42 +19,77 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 
-function a11yProps(index) {
-  return {
-    id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
-  };
-}
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    backgroundColor: theme.palette.background.paper,
-  },
-  textField: {
-    width: '90%',
-    margin: '2px 0px 2px 20px'
-  },
-  gridMargin:{
-    margin: '1px'
-  },
-  button: {
-    margin: '-3em'
-  }
-}));
-
+import { a11yProps, useConversationStyles } from './ConversationStyle'
+import useLocalStorage from 'react-use-localstorage';
+import useSocket from 'use-socket.io-client';
+import { useImmer } from 'use-immer';
+import * as Config from '../Context/Constants'
 
 export default function SimpleTabs(props) {
-  const classes = useStyles();
-  const [tabValue, setTabValue] = React.useState(0);
+  const classes = useConversationStyles();
+  const multilineRows = 20;
   const [boxVisible, setBoxVisible] = React.useState('');
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [openMenu, setOpenMenu] = React.useState(false);
-  const multilineRows = 20;
+  const [allMenuItems, setAllMenuItems] = React.useState({
+    mItem1: false,
+    mItem2: false,
+    mItem3: false,
+  });
+    
 
+  const [tabValue, setTabValue] = React.useState(0);
   const [firstTabValue, setFirstTabValue] = React.useState('');
   const [secondTabValue, setSecondTabValue] = React.useState('');
   const firstTabRef = React.createRef();
   const secondTabRef = React.createRef();
+
+  const [socket] = useSocket(Config.ApiEndpoint);
+  const [room, setRoom] = useLocalStorage(Config.ChannelType.One,'');
+  const [id, setId] = useLocalStorage('id', '');
+  const [sendMessage, setSendMessage] = React.useState('');
+  const [messages, setMessages] = useImmer([]);
+  const [onlineList, setOnline] = useImmer([]);
+
+  useEffect(()=>{
+    socket.connect();
+
+    if(id){
+      socket.emit('join',id,room);
+    }
+
+    socket.on('message-queue',(nick,message) => {
+      setMessages(draft => {
+        draft.push([nick,message])
+      })
+    });
+
+    socket.on('update',message => setMessages(draft => {
+      draft.push(['',message]);
+    }))
+
+    socket.on('people-list',people => {
+      let newState = [];
+      for(let person in people){
+        newState.push([people[person].id,people[person].nick]);
+      }
+      setOnline(draft=>{draft.push(...newState)});
+    });
+
+    socket.on('add-person',(nick,id)=>{
+      setOnline(draft => {
+        draft.push([id,nick])
+      })
+    })
+
+    socket.on('remove-person',id=>{
+      setOnline(draft => draft.filter(m => m[0] !== id))
+    })
+
+    socket.on('chat-message',(nick,message)=>{
+      setMessages(draft => {draft.push([nick,message])})
+    })
+  },0);
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -74,37 +109,51 @@ export default function SimpleTabs(props) {
     }
   }
 
-  const saveTextArea = () =>{
-    let title = '1.[English -> 日本語] \n'
-    let save_data = title;
-    save_data += firstTabValue;
-    save_data += '\n';
-    title = '2.[日本語 -> English] \n'
-    save_data += title;
-    save_data += secondTabValue;
-
-    const timestampNow = Date().now;
-    const timestamp = new Intl.DateTimeFormat('ja-JP', {year: 'numeric', month: '2-digit',day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit'}).format(timestampNow)
-
-    if(save_data){
-      const element = document.createElement("a");
-      const file = new Blob([save_data], {type: 'text/plain'});
-      element.href = URL.createObjectURL(file);
-      element.download = 'voice-text-save-'+ timestamp + '.txt';
-      document.body.appendChild(element); // Required for this to work in FireFox
-      element.click();
-    }
-  }
-
-  const handleMenuClick = (event) => {
-    setAnchorEl(event.currentTarget);
+  const handleMenuClick = (e) => {
+    setAnchorEl(e.currentTarget);
     setOpenMenu(true);
   };
 
-  const handleMenuClose = () => {
+  const handleMenuClose = (value) => {
+    switch(value) {
+      case 'mItem1':
+        setAllMenuItems({...allMenuItems, mItem1: true, mItem2: false, mItem3: false})
+        break;
+      case 'mItem2':
+        setAllMenuItems({...allMenuItems, mItem1: false, mItem2: true, mItem3: false})
+        break;
+      case 'mItem3':
+        setAllMenuItems({...allMenuItems, mItem1: false, mItem2: false, mItem3: true})
+        break;
+      default:
+        setAllMenuItems({...allMenuItems})
+    }
+
     setAnchorEl(null);
     setOpenMenu(false);
   };
+
+  const handleSend = (e) => {
+    console.log(sendMessage);
+    e.preventDefault();
+
+    if(sendMessage.trim() !== ''){
+      socket.emit('chat-message',sendMessage,room);
+      setSendMessage('');
+    }
+  }
+
+  const handleMessageTyping = (e) => {
+    setSendMessage(e.target.value);
+  }
+
+  const Disconnect = () => {
+    socket.disconnect();
+    setOnline(draft=>[]);
+    setMessages(draft=>[]);
+    setId('');
+    socket.connect();
+  }
 
   return (
     <div>
@@ -121,12 +170,12 @@ export default function SimpleTabs(props) {
                 open={openMenu}
                 onClose={handleMenuClose}
               >
-              <MenuItem onClick={handleMenuClose}>Channel#1</MenuItem>
-              <MenuItem onClick={handleMenuClose}>Channel#2</MenuItem>
-              <MenuItem onClick={handleMenuClose}>Channel#3</MenuItem>
+              <MenuItem onClick={() => handleMenuClose('mItem1')} selected={allMenuItems.mItem1}>Channel#1</MenuItem>
+              <MenuItem onClick={() => handleMenuClose('mItem2')} selected={allMenuItems.mItem2}>Channel#2</MenuItem>
+              <MenuItem onClick={() => handleMenuClose('mItem3')} selected={allMenuItems.mItem3}>Channel#3</MenuItem>
             </Menu>
             <Typography variant="h6" className={classes.title}>
-              Chat Server / Publisher-Subscriber
+              Socket.io / Publisher-Subscriber
             </Typography>
           </Toolbar>
           <Tabs value={tabValue} onChange={handleTabChange} aria-label="simple tabs" centered>
@@ -216,6 +265,8 @@ export default function SimpleTabs(props) {
                     </InputAdornment>
                   ),
                 }}
+                value={sendMessage}
+                onChange={handleMessageTyping}
                 />
             </Grid>
             <Grid item xs={1}>
@@ -224,6 +275,7 @@ export default function SimpleTabs(props) {
                 color="secondary"
                 className={classes.button}
                 endIcon={<SendIcon/>}
+                onClick={handleSend}
               >
                 Send
               </Button>
