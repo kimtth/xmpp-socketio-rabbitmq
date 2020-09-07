@@ -157,140 +157,142 @@ export default function SimpleTabs(props) {
     socket.connect();
   }
 
-  return (
-    <div>
-    id !== '' ? (
-    <div className={classes.root}>
-        <AppBar position="static">
-          <Toolbar>
-            <IconButton edge="start" onClick={handleMenuClick} className={classes.menuButton} color="inherit" aria-label="menu">
-              <MenuIcon />
-            </IconButton>
-            <Menu
-                id="simple-menu"
-                anchorEl={anchorEl}
-                keepMounted
-                open={openMenu}
-                onClose={handleMenuClose}
-              >
-              <MenuItem onClick={() => handleMenuClose('mItem1')} selected={allMenuItems.mItem1}>Channel#1</MenuItem>
-              <MenuItem onClick={() => handleMenuClose('mItem2')} selected={allMenuItems.mItem2}>Channel#2</MenuItem>
-              <MenuItem onClick={() => handleMenuClose('mItem3')} selected={allMenuItems.mItem3}>Channel#3</MenuItem>
-            </Menu>
-            <Typography variant="h6" className={classes.title}>
-              Socket.io / Publisher-Subscriber
-            </Typography>
-            <Button color="inherit" onClick={Disconnect} startIcon={<ExitToAppIcon/>}>Logout</Button>
-          </Toolbar>
-          <Tabs value={tabValue} onChange={handleTabChange} aria-label="simple tabs" centered>
-              <Tab label="Chat [Host]" {...a11yProps(0)} />
-              <Tab label="Chat [Participants]" {...a11yProps(1)} />
-              <Tab label="Pub-Sub [Pub]" {...a11yProps(2)} />
-              <Tab label="Pub-Sub [Sub]" {...a11yProps(3)} />
-          </Tabs>
-        </AppBar>
-        <Divider/>
-        <TabPanel value={tabValue} index={0} direction={"column"}>
-            <TextField
-                id="outlined-multiline-static0"
-                label="[Chat]"
-                multiline
-                rows={multilineRows}
-                variant="outlined"
-                fullWidth={true}
-                inputRef={firstTabRef}
-                inputProps={{
-                  style: {fontSize: '10px'} 
-                }}
-                value={firstTabValue}
-                onChange={handleChange}
-            />
-        </TabPanel>
-        <TabPanel value={tabValue} index={1}>
-            <TextField
-                id="outlined-multiline-static1"
-                label="[Chat]"
-                multiline
-                rows={multilineRows}
-                variant="outlined"
-                fullWidth={true}
-                inputRef={secondTabRef}
-                inputProps={{
-                  style: {fontSize: '10px'} 
-                }}
-                value={secondTabValue}
-                onChange={handleChange}
-            />
-        </TabPanel>
-        <TabPanel value={tabValue} index={2} direction={"column"}>
-            <TextField
-                id="outlined-multiline-static2"
-                label="[Pub-Sub]"
-                multiline
-                rows={multilineRows}
-                variant="outlined"
-                fullWidth={true}
-                inputRef={firstTabRef}
-                inputProps={{
-                  style: {fontSize: '10px'} 
-                }}
-                value={firstTabValue}
-                onChange={handleChange}
-            />
-        </TabPanel>
-        <TabPanel value={tabValue} index={3}>
-            <TextField
-                id="outlined-multiline-static3"
-                label="[Pub-Sub]"
-                multiline
-                rows={multilineRows}
-                variant="outlined"
-                fullWidth={true}
-                inputRef={secondTabRef}
-                inputProps={{
-                  style: {fontSize: '10px'} 
-                }}
-                value={secondTabValue}
-                onChange={handleChange}
-            />
-        </TabPanel>
-        <Divider/>
-        <form>
-        <Box component="span" className={classes.gridMargin} display={boxVisible}>
-          <Grid container>
-            <Grid item xs={11}>
-              <TextField 
-                id="basic" 
-                className={classes.textField}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <AccountCircle />
-                    </InputAdornment>
-                  ),
-                }}
-                value={sendMessage}
-                onChange={handleMessageTyping}
-                />
+
+  if (id !== '') {
+    return (
+      <div>
+      <div className={classes.root}>
+          <AppBar position="static">
+            <Toolbar>
+              <IconButton edge="start" onClick={handleMenuClick} className={classes.menuButton} color="inherit" aria-label="menu">
+                <MenuIcon />
+              </IconButton>
+              <Menu
+                  id="simple-menu"
+                  anchorEl={anchorEl}
+                  keepMounted
+                  open={openMenu}
+                  onClose={handleMenuClose}
+                >
+                <MenuItem onClick={() => handleMenuClose('mItem1')} selected={allMenuItems.mItem1}>Channel#1</MenuItem>
+                <MenuItem onClick={() => handleMenuClose('mItem2')} selected={allMenuItems.mItem2}>Channel#2</MenuItem>
+                <MenuItem onClick={() => handleMenuClose('mItem3')} selected={allMenuItems.mItem3}>Channel#3</MenuItem>
+              </Menu>
+              <Typography variant="h6" className={classes.title}>
+                Socket.io / Publisher-Subscriber
+              </Typography>
+              <Button color="inherit" onClick={Disconnect} startIcon={<ExitToAppIcon/>}>Logout</Button>
+            </Toolbar>
+            <Tabs value={tabValue} onChange={handleTabChange} aria-label="simple tabs" centered>
+                <Tab label="Chat [Host]" {...a11yProps(0)} />
+                <Tab label="Chat [Participants]" {...a11yProps(1)} />
+                <Tab label="Pub-Sub [Pub]" {...a11yProps(2)} />
+                <Tab label="Pub-Sub [Sub]" {...a11yProps(3)} />
+            </Tabs>
+          </AppBar>
+          <Divider/>
+          <TabPanel value={tabValue} index={0} direction={"column"}>
+              <TextField
+                  id="outlined-multiline-static0"
+                  label="[Chat]"
+                  multiline
+                  rows={multilineRows}
+                  variant="outlined"
+                  fullWidth={true}
+                  inputRef={firstTabRef}
+                  inputProps={{
+                    style: {fontSize: '10px'} 
+                  }}
+                  value={firstTabValue}
+                  onChange={handleChange}
+              />
+          </TabPanel>
+          <TabPanel value={tabValue} index={1}>
+              <TextField
+                  id="outlined-multiline-static1"
+                  label="[Chat]"
+                  multiline
+                  rows={multilineRows}
+                  variant="outlined"
+                  fullWidth={true}
+                  inputRef={secondTabRef}
+                  inputProps={{
+                    style: {fontSize: '10px'} 
+                  }}
+                  value={secondTabValue}
+                  onChange={handleChange}
+              />
+          </TabPanel>
+          <TabPanel value={tabValue} index={2} direction={"column"}>
+              <TextField
+                  id="outlined-multiline-static2"
+                  label="[Pub-Sub]"
+                  multiline
+                  rows={multilineRows}
+                  variant="outlined"
+                  fullWidth={true}
+                  inputRef={firstTabRef}
+                  inputProps={{
+                    style: {fontSize: '10px'} 
+                  }}
+                  value={firstTabValue}
+                  onChange={handleChange}
+              />
+          </TabPanel>
+          <TabPanel value={tabValue} index={3}>
+              <TextField
+                  id="outlined-multiline-static3"
+                  label="[Pub-Sub]"
+                  multiline
+                  rows={multilineRows}
+                  variant="outlined"
+                  fullWidth={true}
+                  inputRef={secondTabRef}
+                  inputProps={{
+                    style: {fontSize: '10px'} 
+                  }}
+                  value={secondTabValue}
+                  onChange={handleChange}
+              />
+          </TabPanel>
+          <Divider/>
+          <form>
+          <Box component="span" className={classes.gridMargin} display={boxVisible}>
+            <Grid container>
+              <Grid item xs={11}>
+                <TextField 
+                  id="basic" 
+                  className={classes.textField}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <AccountCircle />
+                      </InputAdornment>
+                    ),
+                  }}
+                  value={sendMessage}
+                  onChange={handleMessageTyping}
+                  />
+              </Grid>
+              <Grid item xs={1}>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  className={classes.button}
+                  endIcon={<SendIcon/>}
+                  onClick={handleSend}
+                >
+                  Send
+                </Button>
+              </Grid>
             </Grid>
-            <Grid item xs={1}>
-              <Button
-                variant="contained"
-                color="secondary"
-                className={classes.button}
-                endIcon={<SendIcon/>}
-                onClick={handleSend}
-              >
-                Send
-              </Button>
-            </Grid>
-          </Grid>
-        </Box>
-        </form>
-    </div>
-    ) : (
-    <ConversationLogin socket={socket} setId={setId} setRoom={setRoom}/>
-    );
-    </div>
-  );
+          </Box>
+          </form>
+      </div>
+      </div>
+      );
+    }else {
+      return (<div><ConversationLogin socket={socket} setId={setId} setRoom={setRoom}/></div>);
+    }
+    
 }

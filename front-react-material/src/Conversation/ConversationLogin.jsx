@@ -19,8 +19,8 @@ function ConversationLogin(props) {
     return (
         <div style={{ textAlign: 'center', margin: '30vh auto', width: '70%' }}>
         <form onSubmit={event => handleSubmit(event)}>
-            <input id="name" required placeholder="What is your name .." /><br />
-            <input id="room" placeholder="What is your room .." /><br />
+            ID: <input id="name" required placeholder="What is your name .." /><br />
+            Room: <input id="room" placeholder="What is your room .." /><br />
             <button type="submit">Submit</button>
         </form>
         </div>
