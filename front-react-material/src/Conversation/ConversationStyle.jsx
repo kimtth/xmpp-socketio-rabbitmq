@@ -20,5 +20,8 @@ export const useConversationStyles = makeStyles((theme) => ({
   },
   button: {
     margin: '-3em'
-  }
+  },
+  title: {
+    flexGrow: 1,
+  },
 }));

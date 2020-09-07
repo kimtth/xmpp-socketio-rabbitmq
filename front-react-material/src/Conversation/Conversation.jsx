@@ -18,12 +18,14 @@ import MenuIcon from '@material-ui/icons/Menu';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 
 import { a11yProps, useConversationStyles } from './ConversationStyle'
 import useLocalStorage from 'react-use-localstorage';
 import useSocket from 'use-socket.io-client';
 import { useImmer } from 'use-immer';
 import * as Config from '../Context/Constants'
+import ConversationLogin from './ConversationLogin'
 
 export default function SimpleTabs(props) {
   const classes = useConversationStyles();
@@ -157,6 +159,7 @@ export default function SimpleTabs(props) {
 
   return (
     <div>
+    id !== '' ? (
     <div className={classes.root}>
         <AppBar position="static">
           <Toolbar>
@@ -177,6 +180,7 @@ export default function SimpleTabs(props) {
             <Typography variant="h6" className={classes.title}>
               Socket.io / Publisher-Subscriber
             </Typography>
+            <Button color="inherit" onClick={Disconnect} startIcon={<ExitToAppIcon/>}>Logout</Button>
           </Toolbar>
           <Tabs value={tabValue} onChange={handleTabChange} aria-label="simple tabs" centered>
               <Tab label="Chat [Host]" {...a11yProps(0)} />
@@ -284,7 +288,9 @@ export default function SimpleTabs(props) {
         </Box>
         </form>
     </div>
-      
+    ) : (
+    <ConversationLogin socket={socket} setId={setId} setRoom={setRoom}/>
+    );
     </div>
   );
 }
