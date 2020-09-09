@@ -26,6 +26,8 @@ import useSocket from 'use-socket.io-client';
 import { useImmer } from 'use-immer';
 import * as Config from '../Context/Constants'
 import ConversationLogin from './ConversationLogin'
+import receiveMQTT from '../App/receiveMQclient'
+
 
 export default function SimpleTabs(props) {
   const classes = useConversationStyles();
@@ -39,7 +41,6 @@ export default function SimpleTabs(props) {
     mItem3: false,
   });
     
-
   const [tabValue, setTabValue] = React.useState(0);
   const [firstTabValue, setFirstTabValue] = React.useState('');
   const [secondTabValue, setSecondTabValue] = React.useState('');
@@ -54,6 +55,7 @@ export default function SimpleTabs(props) {
   const [onlineList, setOnline] = useImmer([]);
 
   useEffect(()=>{
+    //for socket.io
     socket.connect();
 
     if(id){
@@ -84,14 +86,17 @@ export default function SimpleTabs(props) {
       })
     })
 
-    socket.on('remove-person',id=>{
+    socket.on('remove-person', id=>{
       setOnline(draft => draft.filter(m => m[0] !== id))
     })
 
     socket.on('chat-message',(nick,message)=>{
       setMessages(draft => {draft.push([nick,message])})
     })
-  },0);
+
+    //for pub-sub
+    receiveMQTT();
+  },[]);
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);

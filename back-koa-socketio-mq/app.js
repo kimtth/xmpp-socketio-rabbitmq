@@ -1,18 +1,9 @@
-const Koa = require('koa');
-const Router = require('koa-router');
-const bodyParser = require('koa-bodyparser');
+// import socketServer from './modules/socketio/socketServer';
+// import emitMQTT from './modules/rabbitmq/emitMQclient';
 
-const api = require('./api');
+const { socketServer } = require('./modules/socketio/socketServer');
+const { emitMQTT } = require('./modules/rabbitmq/emitMQclient');
 
-const app = new Koa();
-const router = new Router();
+socketServer();
+emitMQTT();
 
-router.use('/api', api.routes()); 
-
-app.use(bodyParser());
-
-app.use(router.routes()).use(router.allowedMethods());
-
-app.listen(4000, () => {
-  console.log('listening to port 4000');
-});
