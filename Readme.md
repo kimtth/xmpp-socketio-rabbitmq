@@ -40,19 +40,21 @@ $ Start-Service docker
 $ Restart-Computer -Force
 ```
 
-## The Client
+## The Commands for execution
+
+- The Client
 
 ```
 $ yarn start
 ```
 
-## The Server
+- The Server
 
 ```
 $ yarn nodemon app
 ```
 
-## Deployment
+- Deployment
 
 ```
 $ yarn build
@@ -60,3 +62,5 @@ $ node app
 ```
 
 Default Port is 8080. http://localhost:8080
+
+![ref](./doc/socket_demo.gif?raw=true)
