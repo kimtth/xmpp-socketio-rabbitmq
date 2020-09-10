@@ -1,18 +1,23 @@
 var amqp = require('amqplib/callback_api');
 
 
-function emitMQTT() {
+function emitMQTT(exchange, msg) {
   //amqp://user:pass@sub.example.com:8080
   amqp.connect('amqp://guest:guest@localhost:5672', function (error0, connection) {
     if (error0) {
-      throw error0;
+      console.log(error0);
+      return;
     }
     connection.createChannel(function (error1, channel) {
       if (error1) {
-        throw error1;
+        console.log(error0);
+        return;
       }
-      var exchange = 'logs';
-      var msg = 'Hello World!';
+
+      if(exchange)
+        exchange = 'turtle';
+      if(msg)
+        msg = 'Hello World!';
 
       channel.assertExchange(exchange, 'fanout', {
         durable: false
@@ -24,7 +29,7 @@ function emitMQTT() {
     setTimeout(function () {
       connection.close();
       process.exit(0);
-    }, 5000);
+    }, 3000);
   });
 }
 

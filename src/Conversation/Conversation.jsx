@@ -30,6 +30,7 @@ import ConversationLogin from './ConversationLogin'
 
 import Snackbar from '@material-ui/core/Snackbar';
 import ConfigContext from '../Context/ConfigContext';
+import { emitPub, receiveSub } from '../App/API'
 
 
 export default function SimpleTabs(props) {
@@ -48,8 +49,6 @@ export default function SimpleTabs(props) {
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
 
   const [tabValue, setTabValue] = React.useState(0);
-  const [firstTabValue, setFirstTabValue] = React.useState('');
-  const [secondTabValue, setSecondTabValue] = React.useState('');
   const firstTabRef = React.createRef();
   const secondTabRef = React.createRef();
 
@@ -57,8 +56,12 @@ export default function SimpleTabs(props) {
   const [room, setRoom] = useSessionStorage('room', '');
   const [id, setId] = useSessionStorage('id', '');
   const [sendMessage, setSendMessage] = React.useState('');
+  const [channelMQ, setChannelMQ] = React.useState('turtle'); //exchange turtle
   const [messages, setMessages] = useImmer([]);
   const [onlineList, setOnline] = useImmer([]);
+
+  const [pubMessage, setPubMessage] = React.useState([]);
+  const [subMessage, setSubMessage] = React.useState([]);
 
   useEffect(() => {
     //for socket.io
@@ -127,14 +130,6 @@ export default function SimpleTabs(props) {
     }
   };
 
-  const handleChange = e => {
-    if (e.target === firstTabRef.current) {
-      setFirstTabValue(e.target.value);
-    } else if (e.target === secondTabRef.current) {
-      setSecondTabValue(e.target.value);
-    }
-  }
-
   const handleMenuClick = (e) => {
     setAnchorEl(e.currentTarget);
     setOpenMenu(true);
@@ -168,6 +163,14 @@ export default function SimpleTabs(props) {
         socket.emit('chat-message', sendMessage, room);
         setSendMessage('');
       }
+    } else {
+      emitPub(channelMQ, sendMessage);
+      setSendMessage('');
+      setPubMessage([...pubMessage, sendMessage]);
+
+      receiveSub(channelMQ, (subMsg) => {
+        setSubMessage([...subMessage, subMsg]);
+      });
     }
   }
 
@@ -247,7 +250,6 @@ export default function SimpleTabs(props) {
               }}
               value={messages.map(msg => (`>> ${msg[0]}: ${msg[1]}`)
               ).join('\r\n')}
-              onChange={handleChange}
             />
           </TabPanel>
           <TabPanel value={tabValue} index={1}>
@@ -264,7 +266,6 @@ export default function SimpleTabs(props) {
               }}
               value={messages.map(msg => (`>> ${msg[0]}: ${msg[1]}`)
               ).join('\r\n')}
-              onChange={handleChange}
             />
           </TabPanel>
           <TabPanel value={tabValue} index={2} direction={"column"}>
@@ -279,8 +280,8 @@ export default function SimpleTabs(props) {
               inputProps={{
                 style: { fontSize: '10px' }
               }}
-              value={firstTabValue}
-              onChange={handleChange}
+              value={pubMessage.map(msg => (`>> ${msg[0]}`)
+              ).join('\r\n')}
             />
           </TabPanel>
           <TabPanel value={tabValue} index={3}>
@@ -295,8 +296,8 @@ export default function SimpleTabs(props) {
               inputProps={{
                 style: { fontSize: '10px' }
               }}
-              value={secondTabValue}
-              onChange={handleChange}
+              value={subMessage.map(msg => (`>> ${msg}`)
+              ).join('\r\n')}
             />
           </TabPanel>
           <Divider />

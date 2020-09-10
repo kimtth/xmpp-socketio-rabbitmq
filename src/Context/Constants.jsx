@@ -5,4 +5,4 @@ export const ChannelType = {
 }
 
 export const SocketURL = 'http://localhost:8080'
-export const apiURL = 'http://localhost:8080/api'
+export const apiURL = 'http://localhost:8080/api/'
