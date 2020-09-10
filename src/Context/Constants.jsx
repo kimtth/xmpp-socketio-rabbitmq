@@ -5,4 +5,4 @@ export const ChannelType = {
 }
 
 export const SocketURL = 'http://localhost:8080'
-const amqpURL = ''
+export const apiURL = 'http://localhost:8080/api'
