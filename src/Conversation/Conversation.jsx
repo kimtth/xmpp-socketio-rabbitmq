@@ -21,15 +21,21 @@ import Divider from '@material-ui/core/Divider';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 
 import { a11yProps, useConversationStyles } from './ConversationStyle'
-import useLocalStorage from 'react-use-localstorage';
+//import useLocalStorage from 'react-use-localstorage';
+import useSessionStorage from "use-session-storage"
 import useSocket from 'use-socket.io-client';
 import { useImmer } from 'use-immer';
 import * as Config from '../Context/Constants'
 import ConversationLogin from './ConversationLogin'
 
+import Snackbar from '@material-ui/core/Snackbar';
+import ConfigContext from '../Context/ConfigContext';
+
 
 export default function SimpleTabs(props) {
   const classes = useConversationStyles();
+  const { state, actions } = React.useContext(ConfigContext);
+
   const multilineRows = 20;
   const [boxVisible, setBoxVisible] = React.useState('');
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -39,79 +45,92 @@ export default function SimpleTabs(props) {
     mItem2: false,
     mItem3: false,
   });
-    
+  const [openSnackBar, setOpenSnackBar] = React.useState(false);
+
   const [tabValue, setTabValue] = React.useState(0);
   const [firstTabValue, setFirstTabValue] = React.useState('');
   const [secondTabValue, setSecondTabValue] = React.useState('');
   const firstTabRef = React.createRef();
   const secondTabRef = React.createRef();
 
-  const [socket] = useSocket(Config.SocketURL); //port 8081
-  const [room, setRoom] = useLocalStorage(Config.ChannelType.One,'');
-  const [id, setId] = useLocalStorage('id', '');
+  const [socket] = useSocket(Config.SocketURL); //port 8080
+  const [room, setRoom] = useSessionStorage('room', '');
+  const [id, setId] = useSessionStorage('id', '');
   const [sendMessage, setSendMessage] = React.useState('');
   const [messages, setMessages] = useImmer([]);
   const [onlineList, setOnline] = useImmer([]);
 
-  useEffect(()=>{
+  useEffect(() => {
     //for socket.io
     socket.connect();
 
-    socket.on('popo', function (data) {
+    socket.on('health_check', function (data) {
       console.log(data);
     });
 
-    if(id){
-      socket.emit('join',id,room);
+    if (id) {
+      socket.emit('join', id, room);
     }
 
-    socket.on('message-queue',(nick,message) => {
+    socket.on('message-queue', (nick, message) => {
       setMessages(draft => {
-        draft.push([nick,message])
+        draft.push([nick, message])
       })
     });
 
-    socket.on('update',message => setMessages(draft => {
-      draft.push(['',message]);
+    socket.on('update', message => setMessages(draft => {
+      draft.push(['', message]);
     }))
 
-    socket.on('people-list',people => {
+    socket.on('people-list', people => {
       let newState = [];
-      for(let person in people){
-        newState.push([people[person].id,people[person].nick]);
+      for (let person in people) {
+        newState.push([people[person].id, people[person].nick]);
       }
-      setOnline(draft=>{draft.push(...newState)});
+      setOnline(draft => { draft.push(...newState) });
+      setOpenSnackBar(true);
     });
 
-    socket.on('add-person',(nick,id)=>{
+    socket.on('add-person', (nick, id) => {
       setOnline(draft => {
-        draft.push([id,nick])
+        draft.push([id, nick])
       })
+      setOpenSnackBar(true);
     })
 
-    socket.on('remove-person', id=>{
+    socket.on('remove-person', id => {
       setOnline(draft => draft.filter(m => m[0] !== id))
+      setOpenSnackBar(true);
     })
 
-    socket.on('chat-message',(nick,message)=>{
-      setMessages(draft => {draft.push([nick,message])})
+    socket.on('chat-message', (nick, message) => {
+      setMessages(draft => { draft.push([nick, message]) })
     })
-  },[]);
+  }, []);
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
 
-    if(newValue === 3){
+    //socket
+    if (newValue === 0 || newValue === 1) {
+      actions.setIsSocketMode(true);
+    } else {
+      //rabbitmq
+      actions.setIsSocketMode(false);
+    }
+
+    if (newValue === 3) {
+      //subscriber
       setBoxVisible('none');
-    }else{
+    } else {
       setBoxVisible('');
     }
   };
 
   const handleChange = e => {
-    if (e.target === firstTabRef.current){
+    if (e.target === firstTabRef.current) {
       setFirstTabValue(e.target.value);
-    }else if(e.target === secondTabRef.current){
+    } else if (e.target === secondTabRef.current) {
       setSecondTabValue(e.target.value);
     }
   }
@@ -122,18 +141,18 @@ export default function SimpleTabs(props) {
   };
 
   const handleMenuClose = (value) => {
-    switch(value) {
+    switch (value) {
       case 'mItem1':
-        setAllMenuItems({...allMenuItems, mItem1: true, mItem2: false, mItem3: false})
+        setAllMenuItems({ ...allMenuItems, mItem1: true, mItem2: false, mItem3: false })
         break;
       case 'mItem2':
-        setAllMenuItems({...allMenuItems, mItem1: false, mItem2: true, mItem3: false})
+        setAllMenuItems({ ...allMenuItems, mItem1: false, mItem2: true, mItem3: false })
         break;
       case 'mItem3':
-        setAllMenuItems({...allMenuItems, mItem1: false, mItem2: false, mItem3: true})
+        setAllMenuItems({ ...allMenuItems, mItem1: false, mItem2: false, mItem3: true })
         break;
       default:
-        setAllMenuItems({...allMenuItems})
+        setAllMenuItems({ ...allMenuItems })
     }
 
     setAnchorEl(null);
@@ -141,12 +160,14 @@ export default function SimpleTabs(props) {
   };
 
   const handleSend = (e) => {
-    console.log(sendMessage);
-    e.preventDefault();
+    e.preventDefault(); //Kim: suppress refresh
 
-    if(sendMessage.trim() !== ''){
-      socket.emit('chat-message',sendMessage,room);
-      setSendMessage('');
+    if (state.isSocketMode) {
+      console.log(sendMessage);
+      if (sendMessage.trim() !== '') {
+        socket.emit('chat-message', sendMessage, room);
+        setSendMessage('');
+      }
     }
   }
 
@@ -156,29 +177,45 @@ export default function SimpleTabs(props) {
 
   const Disconnect = () => {
     socket.disconnect();
-    setOnline(draft=>[]);
-    setMessages(draft=>[]);
+    setOnline(draft => []);
+    setMessages(draft => []);
     setId('');
     socket.connect();
   }
+
+  const handleSnackBarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpenSnackBar(false);
+  };
 
 
   if (id !== '') {
     return (
       <div>
-      <div className={classes.root}>
+        <div className={classes.root}>
+          <Snackbar anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left',
+          }}
+            open={openSnackBar}
+            autoHideDuration={3000}
+            onClose={handleSnackBarClose}
+            message={onlineList.map(user => `>> ${user[1]}`).join('\r\n')} />
           <AppBar position="static">
             <Toolbar>
               <IconButton edge="start" onClick={handleMenuClick} className={classes.menuButton} color="inherit" aria-label="menu">
                 <MenuIcon />
               </IconButton>
               <Menu
-                  id="simple-menu"
-                  anchorEl={anchorEl}
-                  keepMounted
-                  open={openMenu}
-                  onClose={handleMenuClose}
-                >
+                id="simple-menu"
+                anchorEl={anchorEl}
+                keepMounted
+                open={openMenu}
+                onClose={handleMenuClose}
+              >
                 <MenuItem onClick={() => handleMenuClose('mItem1')} selected={allMenuItems.mItem1}>Channel#1</MenuItem>
                 <MenuItem onClick={() => handleMenuClose('mItem2')} selected={allMenuItems.mItem2}>Channel#2</MenuItem>
                 <MenuItem onClick={() => handleMenuClose('mItem3')} selected={allMenuItems.mItem3}>Channel#3</MenuItem>
@@ -186,118 +223,120 @@ export default function SimpleTabs(props) {
               <Typography variant="h6" className={classes.title}>
                 Socket.io / Publisher-Subscriber
               </Typography>
-              <Button color="inherit" onClick={Disconnect} startIcon={<ExitToAppIcon/>}>Logout</Button>
+              <Button color="inherit" onClick={Disconnect} startIcon={<ExitToAppIcon />}>Logout</Button>
             </Toolbar>
             <Tabs value={tabValue} onChange={handleTabChange} aria-label="simple tabs" centered>
-                <Tab label="Chat [Host]" {...a11yProps(0)} />
-                <Tab label="Chat [Participants]" {...a11yProps(1)} />
-                <Tab label="Pub-Sub [Pub]" {...a11yProps(2)} />
-                <Tab label="Pub-Sub [Sub]" {...a11yProps(3)} />
+              <Tab label="Chat [Host]" {...a11yProps(0)} />
+              <Tab label="Chat [Participants]" {...a11yProps(1)} />
+              <Tab label="Pub-Sub [Pub]" {...a11yProps(2)} />
+              <Tab label="Pub-Sub [Sub]" {...a11yProps(3)} />
             </Tabs>
           </AppBar>
-          <Divider/>
+          <Divider />
           <TabPanel value={tabValue} index={0} direction={"column"}>
-              <TextField
-                  id="outlined-multiline-static0"
-                  label="[Chat]"
-                  multiline
-                  rows={multilineRows}
-                  variant="outlined"
-                  fullWidth={true}
-                  inputRef={firstTabRef}
-                  inputProps={{
-                    style: {fontSize: '10px'} 
-                  }}
-                  value={firstTabValue}
-                  onChange={handleChange}
-              />
+            <TextField
+              id="outlined-multiline-static0"
+              label="[Chat]"
+              multiline
+              rows={multilineRows}
+              variant="outlined"
+              fullWidth={true}
+              inputRef={firstTabRef}
+              inputProps={{
+                style: { fontSize: '15px' }
+              }}
+              value={messages.map(msg => (`>> ${msg[0]}: ${msg[1]}`)
+              ).join('\r\n')}
+              onChange={handleChange}
+            />
           </TabPanel>
           <TabPanel value={tabValue} index={1}>
-              <TextField
-                  id="outlined-multiline-static1"
-                  label="[Chat]"
-                  multiline
-                  rows={multilineRows}
-                  variant="outlined"
-                  fullWidth={true}
-                  inputRef={secondTabRef}
-                  inputProps={{
-                    style: {fontSize: '10px'} 
-                  }}
-                  value={secondTabValue}
-                  onChange={handleChange}
-              />
+            <TextField
+              id="outlined-multiline-static1"
+              label="[Chat]"
+              multiline
+              rows={multilineRows}
+              variant="outlined"
+              fullWidth={true}
+              inputRef={secondTabRef}
+              inputProps={{
+                style: { fontSize: '14px' }
+              }}
+              value={messages.map(msg => (`>> ${msg[0]}: ${msg[1]}`)
+              ).join('\r\n')}
+              onChange={handleChange}
+            />
           </TabPanel>
           <TabPanel value={tabValue} index={2} direction={"column"}>
-              <TextField
-                  id="outlined-multiline-static2"
-                  label="[Pub-Sub]"
-                  multiline
-                  rows={multilineRows}
-                  variant="outlined"
-                  fullWidth={true}
-                  inputRef={firstTabRef}
-                  inputProps={{
-                    style: {fontSize: '10px'} 
-                  }}
-                  value={firstTabValue}
-                  onChange={handleChange}
-              />
+            <TextField
+              id="outlined-multiline-static2"
+              label="[Pub-Sub]"
+              multiline
+              rows={multilineRows}
+              variant="outlined"
+              fullWidth={true}
+              inputRef={firstTabRef}
+              inputProps={{
+                style: { fontSize: '10px' }
+              }}
+              value={firstTabValue}
+              onChange={handleChange}
+            />
           </TabPanel>
           <TabPanel value={tabValue} index={3}>
-              <TextField
-                  id="outlined-multiline-static3"
-                  label="[Pub-Sub]"
-                  multiline
-                  rows={multilineRows}
-                  variant="outlined"
-                  fullWidth={true}
-                  inputRef={secondTabRef}
-                  inputProps={{
-                    style: {fontSize: '10px'} 
-                  }}
-                  value={secondTabValue}
-                  onChange={handleChange}
-              />
+            <TextField
+              id="outlined-multiline-static3"
+              label="[Pub-Sub]"
+              multiline
+              rows={multilineRows}
+              variant="outlined"
+              fullWidth={true}
+              inputRef={secondTabRef}
+              inputProps={{
+                style: { fontSize: '10px' }
+              }}
+              value={secondTabValue}
+              onChange={handleChange}
+            />
           </TabPanel>
-          <Divider/>
+          <Divider />
           <form>
-          <Box component="span" className={classes.gridMargin} display={boxVisible}>
-            <Grid container>
-              <Grid item xs={11}>
-                <TextField 
-                  id="basic" 
-                  className={classes.textField}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <AccountCircle />
-                      </InputAdornment>
-                    ),
-                  }}
-                  value={sendMessage}
-                  onChange={handleMessageTyping}
+            <Box component="span" className={classes.gridMargin} display={boxVisible}>
+              <Grid container>
+                <Grid item xs={11}>
+                  <TextField
+                    id="basic"
+                    className={classes.textField}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <AccountCircle />
+                        </InputAdornment>
+                      ),
+                    }}
+                    value={sendMessage}
+                    onChange={handleMessageTyping}
                   />
-              </Grid>
-              <Grid item xs={1}>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  className={classes.button}
-                  endIcon={<SendIcon/>}
-                  onClick={handleSend}
-                >
-                  Send
+                </Grid>
+                <Grid item xs={1}>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    className={classes.button}
+                    endIcon={<SendIcon />}
+                    onClick={handleSend}
+                  >
+                    Send
                 </Button>
+                </Grid>
               </Grid>
-            </Grid>
-          </Box>
+            </Box>
           </form>
+        </div>
       </div>
-      </div>
-      );
-    }else {
-      return (<div><ConversationLogin socket={socket} setId={setId} setRoom={setRoom}/></div>);
-    }
-    
+    );
+  } else {
+    return (<div><ConversationLogin socket={socket} setId={setId} setRoom={setRoom} /></div>);
+  }
+
 }

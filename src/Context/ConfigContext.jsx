@@ -1,21 +1,21 @@
 import React, { createContext, useState } from 'react';
-import { MessageMode, ChannelType } from './Constants';
+import { ChannelType } from './Constants'
 
 const ConfigContext = createContext({
-  state: { messageMode: String, channelType: String },
+  state: { isSocketMode: Boolean, channelType: String },
   actions: {
-    setMessageMode: () => {},
+    setIsSocketMode: () => {},
     setChannelType: () => {},
   }
 });
 
 const ConfigProvider = ({ children }) => {
-  const [messageMode, setMessageMode] = useState(MessageMode.SocketHost);
+  const [isSocketMode, setIsSocketMode] = useState(true);
   const [channelType, setChannelType] = useState(ChannelType.One);
 
   const value = {
-    state: { messageMode, channelType },
-    actions: { setMessageMode, setChannelType }
+    state: { isSocketMode, channelType },
+    actions: { setIsSocketMode, setChannelType }
   };
   return (
     <ConfigContext.Provider value={value}>{children}</ConfigContext.Provider>

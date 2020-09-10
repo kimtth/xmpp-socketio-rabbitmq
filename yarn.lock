@@ -11903,6 +11903,11 @@ use-immer@^0.4.1:
   resolved "https://registry.yarnpkg.com/use-immer/-/use-immer-0.4.1.tgz#82a372e666496bfd49750673be78c17fcd375ca8"
   integrity sha512-lXukZMx+sWwkWOLMyd5/5Obr6xTDFGSOJ85/nGQk/qhpWAohaFWrYJkT2+70seU/F6Dh7S41c9X6TWL9ljReGQ==
 
+use-session-storage@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/use-session-storage/-/use-session-storage-1.0.4.tgz#0edce94ac30b1503c5f29ba6ece097e182548da2"
+  integrity sha512-4UEn9Rk6o1UL6CBweKC12FG5K/sgMGv4Vqlw8cvNGXoWH5v3VsOFfIIvfAJhiXXrAMrpcUkG2CS8/EzRM58MRg==
+
 use-socket.io-client@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/use-socket.io-client/-/use-socket.io-client-1.1.0.tgz#3cb9b009dd1884fad209cd9e6d099bb99b5bec2c"

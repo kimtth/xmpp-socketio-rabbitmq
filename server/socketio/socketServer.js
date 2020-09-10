@@ -6,16 +6,13 @@ const messageque = {};
 
 const socketServer = function (server) {
     const io = socketIo(server);
-    const port = 8081;
+    const port = 8080;
     server.listen(port, () => {
-        console.log(`Listening on (Scoket.io) ${ port }`)
+        console.log(`Listening on (Socket.io) ${ port }`)
     })
 
     io.on('connection', (socket) => {
-        console.log("connected-----------------------")
-        socket.emit('popo', {
-            po: 'poppopopo'
-        });
+        socket.emit('health_check', 'connected');
 
         socket.on("join", (nick, room) => {
             socket.join(room);
