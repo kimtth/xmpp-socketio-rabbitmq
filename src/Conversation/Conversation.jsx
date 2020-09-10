@@ -26,7 +26,6 @@ import useSocket from 'use-socket.io-client';
 import { useImmer } from 'use-immer';
 import * as Config from '../Context/Constants'
 import ConversationLogin from './ConversationLogin'
-import receiveMQTT from '../App/receiveMQclient'
 
 
 export default function SimpleTabs(props) {
@@ -47,7 +46,7 @@ export default function SimpleTabs(props) {
   const firstTabRef = React.createRef();
   const secondTabRef = React.createRef();
 
-  const [socket] = useSocket(Config.ApiEndpoint);
+  const [socket] = useSocket(Config.SocketURL); //port 8081
   const [room, setRoom] = useLocalStorage(Config.ChannelType.One,'');
   const [id, setId] = useLocalStorage('id', '');
   const [sendMessage, setSendMessage] = React.useState('');
@@ -57,6 +56,10 @@ export default function SimpleTabs(props) {
   useEffect(()=>{
     //for socket.io
     socket.connect();
+
+    socket.on('popo', function (data) {
+      console.log(data);
+    });
 
     if(id){
       socket.emit('join',id,room);
@@ -93,9 +96,6 @@ export default function SimpleTabs(props) {
     socket.on('chat-message',(nick,message)=>{
       setMessages(draft => {draft.push([nick,message])})
     })
-
-    //for pub-sub
-    receiveMQTT();
   },[]);
 
   const handleTabChange = (event, newValue) => {
