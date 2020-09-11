@@ -32,12 +32,38 @@ The default login is 'guest guest'. If you are using bitnami, default is 'UserNa
  
 ## Install Docker on Windows Server
 
-```
+```powershell
 $ Install-WindowsFeature containers
 $ Install-Module -Name DockerMsftProvider -Repository PSGallery -Force
 $ Install-Package -Name docker -ProviderName DockerMsftProvider -Force 
 $ Start-Service docker  
 $ Restart-Computer -Force
+```
+
+```powershell
+## To switch to Linux Containers
+
+$ [Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", "1", "Machine")
+
+# Enable Experimental Features in Dockerd daemon.conf
+$configfile = @"
+{
+    "experimental": true
+}
+"@
+$configfile | Out-File -FilePath C:\ProgramData\docker\config\daemon.json -Encoding ascii -Force
+$ Restart-Service docker
+
+# https://github.com/linuxkit/lcow/releases
+
+$ Invoke-WebRequest -Uri "https://github.com/linuxkit/lcow/releases/download/v4.14.35-v0.3.9/release.zip" -UseBasicParsing -OutFile release.zip
+$ Expand-Archive release.zip -DestinationPath "$Env:ProgramFiles\Linux Containers
+$ docker run --rm -it --platform=linux ubuntu bash
+
+## To switch back to Windows Containers
+
+$ [Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", $null, "Machine")
+$ Restart-Service docker
 ```
 
 ## The Commands for execution
