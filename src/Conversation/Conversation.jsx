@@ -164,11 +164,10 @@ export default function SimpleTabs(props) {
         setSendMessage('');
       }
     } else {
-      emitPub(channelMQ, sendMessage);
-      setSendMessage('');
-      setPubMessage([...pubMessage, sendMessage]);
-
       receiveSub(channelMQ, (subMsg) => {
+        emitPub(channelMQ, sendMessage);
+        setSendMessage('');
+        setPubMessage([...pubMessage, sendMessage]);
         setSubMessage([...subMessage, subMsg]);
       });
     }
