@@ -1,9 +1,5 @@
-
-const { emitMQTT } = require('../rabbitmq/emitMQclient');
-const { receiveMQTT } = require('../rabbitmq/receiveMQclient');
-
 let postId = 1;
-const posts = [];
+let posts = [];
 
 /* 
 POST /api/
@@ -15,15 +11,30 @@ exports.write = ctx => {
   posts.push(post);
   ctx.body = post;
 
-  emitMQTT(channel, message);
+  sendHello(channel, message);
 };
 
 /* 
 GET /api/:channel
 */
+let payload = ''
+
 exports.read = ctx => {
   const { channel } = ctx.params;
-  const msg = receiveMQTT(channel);
-  const get = { message: msg }
+  sendHello(channel, setValue);
+  const get = { message: payload }
   ctx.body = get;
 };
+
+setValue = (msg) => {
+  payload = msg;
+}
+
+getHello = (channel,cb) => {
+  console.log(channel);
+  cb();
+}
+
+sendHello = (channel, message) => {
+  console.log(channel, message);
+}

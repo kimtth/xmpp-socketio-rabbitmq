@@ -164,12 +164,23 @@ export default function SimpleTabs(props) {
         setSendMessage('');
       }
     } else {
+      //create subscriber
       receiveSub(channelMQ, (subMsg) => {
-        emitPub(channelMQ, sendMessage);
+        console.log('The subscriber is wating', subMsg);
+      });
+
+      //trigger publisher
+      emitPub(channelMQ, sendMessage, ()=>{
         setSendMessage('');
         setPubMessage([...pubMessage, sendMessage]);
-        setSubMessage([...subMessage, subMsg]);
+        console.log(sendMessage);
+        //receive from publisher
+        receiveSub(channelMQ, (subMsg) => {
+          console.log(subMsg);
+          setSubMessage([...subMessage, subMsg]);
+        });
       });
+
     }
   }
 
@@ -267,7 +278,7 @@ export default function SimpleTabs(props) {
               ).join('\r\n')}
             />
           </TabPanel>
-          <TabPanel value={tabValue} index={2} direction={"column"}>
+          {/* <TabPanel value={tabValue} index={2} direction={"column"}>
             <TextField
               id="outlined-multiline-static2"
               label="[Pub-Sub]"
@@ -298,7 +309,7 @@ export default function SimpleTabs(props) {
               value={subMessage.map(msg => (`>> ${msg}`)
               ).join('\r\n')}
             />
-          </TabPanel>
+          </TabPanel> */}
           <Divider />
           <form>
             <Box component="span" className={classes.gridMargin} display={boxVisible}>

@@ -1,7 +1,7 @@
 var amqp = require('amqplib/callback_api');
 
-function receiveMQTT(exchange) {
-  amqp.connect('amqp://localhost:15672', function (error0, connection) {
+function receiveMQTT(exchange, cb) {
+  amqp.connect('amqp://guest:guest@localhost:5672', function (error0, connection) {
     if (error0) {
       console.log(error0);
       return;
@@ -16,7 +16,7 @@ function receiveMQTT(exchange) {
         exchange = 'turtle';
 
       channel.assertExchange(exchange, 'fanout', {
-        durable: false
+        durable: true
       });
 
       channel.assertQueue('', {
@@ -32,9 +32,9 @@ function receiveMQTT(exchange) {
         channel.consume(q.queue, function (msg) {
           if (msg.content) {
             console.log(" [x] %s", msg.content.toString());
-            return msg.content.toString(); //kim: add
+            cb(msg.content.toString()); //kim: add
           }else{
-            return 'something was wrong...'; //kim: add
+            cb('something was wrong...'); //kim: add
           }
         }, {
           noAck: true

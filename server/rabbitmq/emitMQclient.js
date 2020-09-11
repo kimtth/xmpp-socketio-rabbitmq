@@ -20,7 +20,7 @@ function emitMQTT(exchange, msg) {
         msg = 'Hello World!';
 
       channel.assertExchange(exchange, 'fanout', {
-        durable: false
+        durable: true
       });
       channel.publish(exchange, '', Buffer.from(msg));
       console.log(" [x] Sent %s", msg);

@@ -1,6 +1,6 @@
 import * as Config from '../Context/Constants'
 
-export function emitPub(channel, message){
+export function emitMessage(channel, message, callback){
     let URL = Config.apiURL;
     let jsonObject = {
       channel: channel,
@@ -20,6 +20,7 @@ export function emitPub(channel, message){
     })
     .then((data) => {
       let rtn = data;
+      callback();
       console.log(rtn);
     })
     .catch((error) => {
@@ -27,7 +28,7 @@ export function emitPub(channel, message){
     });
 }
 
-export function receiveSub(channel, callback){
+export function receiveMessage(channel, callback){
     let URL = Config.apiURL + channel;
 
     fetch(URL, {
@@ -39,7 +40,8 @@ export function receiveSub(channel, callback){
     })
     .then((data) => {
       let rtn = data.message;
-      callback(rtn);
+      if(rtn)
+        callback(rtn);
     })
     .catch((error) => {
       console.log('error: ' + error);
