@@ -1,8 +1,11 @@
 let postId = 1;
 let posts = [];
+const { emitAMQP, ChannelContext } = require('../rabbitmq/emitMQclient');
+const { receiveAMQP } = require('../rabbitmq/receiveMQclient');
+
 
 /* 
-POST /api/
+POST /api/ emit
 */
 exports.write = ctx => {
   const { channel, message } = ctx.request.body;
@@ -11,30 +14,22 @@ exports.write = ctx => {
   posts.push(post);
   ctx.body = post;
 
-  sendHello(channel, message);
+  const exchange = channel;
+  emitAMQP(exchange, message);
 };
 
 /* 
-GET /api/:channel
+GET /api/:channel /receive
 */
-let payload = ''
+let payload = '';
 
 exports.read = ctx => {
   const { channel } = ctx.params;
-  sendHello(channel, setValue);
+  const exchange = channel;
+
+  receiveAMQP(exchange, (msg) => {
+    payload = msg
+  });
   const get = { message: payload }
   ctx.body = get;
 };
-
-setValue = (msg) => {
-  payload = msg;
-}
-
-getHello = (channel,cb) => {
-  console.log(channel);
-  cb();
-}
-
-sendHello = (channel, message) => {
-  console.log(channel, message);
-}

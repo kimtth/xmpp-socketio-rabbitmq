@@ -30,7 +30,7 @@ import ConversationLogin from './ConversationLogin'
 
 import Snackbar from '@material-ui/core/Snackbar';
 import ConfigContext from '../Context/ConfigContext';
-import { emitPub, receiveSub } from '../App/API'
+import { channelOpen, channelClose, emitPub, receiveSub } from '../App/API'
 
 
 export default function SimpleTabs(props) {
@@ -56,60 +56,68 @@ export default function SimpleTabs(props) {
   const [room, setRoom] = useSessionStorage('room', '');
   const [id, setId] = useSessionStorage('id', '');
   const [sendMessage, setSendMessage] = React.useState('');
-  const [channelMQ, setChannelMQ] = React.useState('turtle'); //exchange turtle
   const [messages, setMessages] = useImmer([]);
   const [onlineList, setOnline] = useImmer([]);
 
+  const [channelMQ, setChannelMQ] = React.useState('turtle'); //exchange turtle
   const [pubMessage, setPubMessage] = React.useState([]);
   const [subMessage, setSubMessage] = React.useState([]);
+  const [isMQfirst, setIsMQfisrt] = React.useState(true);
 
   useEffect(() => {
     //for socket.io
-    socket.connect();
+    if(state.isSocketMode){
+      socket.connect();
 
-    socket.on('health_check', function (data) {
-      console.log(data);
-    });
+      socket.on('health_check', function (data) {
+        console.log(data);
+      });
 
-    if (id) {
-      socket.emit('join', id, room);
-    }
-
-    socket.on('message-queue', (nick, message) => {
-      setMessages(draft => {
-        draft.push([nick, message])
-      })
-    });
-
-    socket.on('update', message => setMessages(draft => {
-      draft.push(['', message]);
-    }))
-
-    socket.on('people-list', people => {
-      let newState = [];
-      for (let person in people) {
-        newState.push([people[person].id, people[person].nick]);
+      if (id) {
+        socket.emit('join', id, room);
       }
-      setOnline(draft => { draft.push(...newState) });
-      setOpenSnackBar(true);
-    });
 
-    socket.on('add-person', (nick, id) => {
-      setOnline(draft => {
-        draft.push([id, nick])
+      socket.on('message-queue', (nick, message) => {
+        setMessages(draft => {
+          draft.push([nick, message])
+        })
+      });
+
+      socket.on('update', message => setMessages(draft => {
+        draft.push(['', message]);
+      }))
+
+      socket.on('people-list', people => {
+        let newState = [];
+        for (let person in people) {
+          newState.push([people[person].id, people[person].nick]);
+        }
+        setOnline(draft => { draft.push(...newState) });
+        setOpenSnackBar(true);
+      });
+
+      socket.on('add-person', (nick, id) => {
+        setOnline(draft => {
+          draft.push([id, nick])
+        })
+        setOpenSnackBar(true);
       })
-      setOpenSnackBar(true);
-    })
 
-    socket.on('remove-person', id => {
-      setOnline(draft => draft.filter(m => m[0] !== id))
-      setOpenSnackBar(true);
-    })
+      socket.on('remove-person', id => {
+        setOnline(draft => draft.filter(m => m[0] !== id))
+        setOpenSnackBar(true);
+      })
 
-    socket.on('chat-message', (nick, message) => {
-      setMessages(draft => { draft.push([nick, message]) })
-    })
-  }, []);
+      socket.on('chat-message', (nick, message) => {
+        setMessages(draft => { draft.push([nick, message]) })
+      })
+    } else {
+      //for amqp
+      emitPub(channelMQ, '', ()=>{
+        console.log('connected -amqp')
+      });
+    }
+  }, state.isSocketMode);
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -125,6 +133,10 @@ export default function SimpleTabs(props) {
     if (newValue === 3) {
       //subscriber
       setBoxVisible('none');
+      //receive from publisher
+      receiveSub(channelMQ, (subMsg) => {
+        setSubMessage([...subMessage, subMsg]);
+      });
     } else {
       setBoxVisible('');
     }
@@ -158,29 +170,22 @@ export default function SimpleTabs(props) {
     e.preventDefault(); //Kim: suppress refresh
 
     if (state.isSocketMode) {
-      console.log(sendMessage);
       if (sendMessage.trim() !== '') {
         socket.emit('chat-message', sendMessage, room);
         setSendMessage('');
       }
     } else {
-      //create subscriber
-      receiveSub(channelMQ, (subMsg) => {
-        console.log('The subscriber is wating', subMsg);
-      });
-
       //trigger publisher
-      emitPub(channelMQ, sendMessage, ()=>{
-        setSendMessage('');
-        setPubMessage([...pubMessage, sendMessage]);
-        console.log(sendMessage);
-        //receive from publisher
-        receiveSub(channelMQ, (subMsg) => {
-          console.log(subMsg);
-          setSubMessage([...subMessage, subMsg]);
+      if(isMQfirst){
+        emitPub(channelMQ, '', ()=>{
+          setIsMQfisrt(false);
         });
-      });
+      }
 
+      emitPub(channelMQ, sendMessage, ()=>{
+        setPubMessage([...pubMessage, sendMessage]);
+        setSendMessage('');
+      });
     }
   }
 
@@ -278,7 +283,7 @@ export default function SimpleTabs(props) {
               ).join('\r\n')}
             />
           </TabPanel>
-          {/* <TabPanel value={tabValue} index={2} direction={"column"}>
+          <TabPanel value={tabValue} index={2} direction={"column"}>
             <TextField
               id="outlined-multiline-static2"
               label="[Pub-Sub]"
@@ -290,7 +295,7 @@ export default function SimpleTabs(props) {
               inputProps={{
                 style: { fontSize: '10px' }
               }}
-              value={pubMessage.map(msg => (`>> ${msg[0]}`)
+              value={pubMessage.map(msg => (`>> ${msg}`)
               ).join('\r\n')}
             />
           </TabPanel>
@@ -309,7 +314,7 @@ export default function SimpleTabs(props) {
               value={subMessage.map(msg => (`>> ${msg}`)
               ).join('\r\n')}
             />
-          </TabPanel> */}
+          </TabPanel>
           <Divider />
           <form>
             <Box component="span" className={classes.gridMargin} display={boxVisible}>

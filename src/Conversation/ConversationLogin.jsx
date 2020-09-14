@@ -7,7 +7,7 @@ function ConversationLogin(props) {
         e.preventDefault();
         const name = document.querySelector('#name').value.trim();
         const room_value = document.querySelector('#room').value.trim();
-        console.log(name);
+
         if (!name) {
           return alert("Name can't be empty");
         }
