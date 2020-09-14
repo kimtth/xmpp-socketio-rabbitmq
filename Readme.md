@@ -30,7 +30,9 @@ The default login is 'guest guest'. If you are using bitnami, default is 'UserNa
 
  https://medium.com/dev-genius/rabbitmq-with-docker-on-windows-in-30-minutes-172e88bb0808
  
-## Install Docker on Windows Server
+## Install Docker on Windows Server 
+
+Not able to find a proper solution using Linux containers in Windows server. Instead of docker, with installing it directly on Windows server is a better solution.
 
 ```powershell
 $ Install-WindowsFeature containers
