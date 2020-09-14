@@ -1,3 +1,12 @@
+# Attempts for finding a propr solution.
+
+# XMPP Server
+
+ejabberd (Most Popular XMPP server)
+
+User: admin@localhost or admin@domain-name
+
+Password: e.g. admin (User defined)
 
 # RabbitMQ with Docker
 
@@ -90,3 +99,13 @@ $ node app
 Default Port is 8080. http://localhost:8080
 
 ![ref](./doc/socket_demo.gif?raw=true)
+
+# References
+
+MQTT uses a more stream-orientated approach, making it easy for low-memory clients to write frames. AMQP uses a buffer-orientated approach, making possible high-performance servers.
+
+https://stackoverflow.com/questions/23158842/using-rabbitmq-in-android-for-chat
+
+https://stackoverflow.com/questions/6636213/rabbitmq-vs-socket-io
+
+https://medium.com/@thinkwik/web-sockets-vs-xmpp-which-is-better-for-chat-application-113e3520b327
