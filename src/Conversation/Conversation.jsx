@@ -30,7 +30,7 @@ import ConversationLogin from './ConversationLogin'
 
 import Snackbar from '@material-ui/core/Snackbar';
 import ConfigContext from '../Context/ConfigContext';
-import { channelOpen, channelClose, emitPub, receiveSub } from '../App/API'
+import { pubsubOpen, pubsubClose, emitPub, receiveSub } from '../App/API'
 
 
 export default function SimpleTabs(props) {
@@ -59,10 +59,9 @@ export default function SimpleTabs(props) {
   const [messages, setMessages] = useImmer([]);
   const [onlineList, setOnline] = useImmer([]);
 
-  const [channelMQ, setChannelMQ] = React.useState('turtle'); //exchange turtle
+  const [channelMQ, setChannelMQ] = React.useState('testService'); //exchange turtle
   const [pubMessage, setPubMessage] = React.useState([]);
   const [subMessage, setSubMessage] = React.useState([]);
-  const [isMQfirst, setIsMQfisrt] = React.useState(true);
 
   useEffect(() => {
     //for socket.io
@@ -111,17 +110,16 @@ export default function SimpleTabs(props) {
       socket.on('chat-message', (nick, message) => {
         setMessages(draft => { draft.push([nick, message]) })
       })
-    } else {
-      //for amqp
-      emitPub(channelMQ, '', ()=>{
-        console.log('connected -amqp')
-      });
-    }
-  }, state.isSocketMode);
+    } 
+    //for amqp
+    pubsubOpen(channelMQ, ()=>{
+      console.log('amqp--started')
+    });
+    
+  }, []);
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
-
     //socket
     if (newValue === 0 || newValue === 1) {
       actions.setIsSocketMode(true);
@@ -176,12 +174,6 @@ export default function SimpleTabs(props) {
       }
     } else {
       //trigger publisher
-      if(isMQfirst){
-        emitPub(channelMQ, '', ()=>{
-          setIsMQfisrt(false);
-        });
-      }
-
       emitPub(channelMQ, sendMessage, ()=>{
         setPubMessage([...pubMessage, sendMessage]);
         setSendMessage('');
@@ -199,6 +191,8 @@ export default function SimpleTabs(props) {
     setMessages(draft => []);
     setId('');
     socket.connect();
+
+    pubsubClose();
   }
 
   const handleSnackBarClose = (event, reason) => {

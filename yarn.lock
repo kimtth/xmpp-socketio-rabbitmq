@@ -2013,6 +2013,28 @@
     "@webassemblyjs/wast-parser" "1.8.5"
     "@xtuc/long" "4.2.2"
 
+"@xmpp/jid@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@xmpp/jid/-/jid-0.0.2.tgz#0d528ca9d58dafc833665564ffe62f332a3167f2"
+  integrity sha1-DVKMqdWNr8gzZlVk/+YvMyoxZ/I=
+
+"@xmpp/streamparser@^0.0.6":
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/@xmpp/streamparser/-/streamparser-0.0.6.tgz#118033ea9db7c86a1cb46103f269ebff79f6f1ea"
+  integrity sha1-EYAz6p23yGoctGED8mnr/3n28eo=
+  dependencies:
+    "@xmpp/xml" "^0.1.3"
+    inherits "^2.0.3"
+    ltx "^2.5.0"
+
+"@xmpp/xml@^0.1.3":
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/@xmpp/xml/-/xml-0.1.3.tgz#1f14399e53e419688558698f6c62e71e39a86a6e"
+  integrity sha1-HxQ5nlPkGWiFWGmPbGLnHjmoam4=
+  dependencies:
+    inherits "^2.0.3"
+    ltx "^2.6.2"
+
 "@xtuc/ieee754@^1.2.0":
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@xtuc/ieee754/-/ieee754-1.2.0.tgz#eef014a3145ae477a1cbc00cd1e552336dceb790"
@@ -2622,6 +2644,11 @@ backo2@1.0.2:
   resolved "https://registry.yarnpkg.com/backo2/-/backo2-1.0.2.tgz#31ab1ac8b129363463e35b3ebb69f4dfcfba7947"
   integrity sha1-MasayLEpNjRj41s+u2n038+6eUc=
 
+backoff@~2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/backoff/-/backoff-2.3.0.tgz#ee7c7e38093f92e472859db635e7652454fc21ea"
+  integrity sha1-7nx+OAk/kuRyhZ22NedlJFT8Ieo=
+
 balanced-match@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
@@ -2832,6 +2859,11 @@ browser-process-hrtime@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/browser-process-hrtime/-/browser-process-hrtime-1.0.0.tgz#3c9b4b7d782c8121e56f10106d84c0d0ffc94626"
   integrity sha512-9o5UecI3GhkpM6DrXr69PblIuWxPKk9Y0jHBRhdocZ2y7YECBFCsHm79Pr3OyR2AvjhDkabFJaDJMYRazHgsow==
+
+browser-request@^0.3.3:
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/browser-request/-/browser-request-0.3.3.tgz#9ece5b5aca89a29932242e18bf933def9876cc17"
+  integrity sha1-ns5bWsqJopkyJC4Yv5M975h2zBc=
 
 browser-resolve@^1.11.3:
   version "1.11.3"
@@ -7517,6 +7549,11 @@ lodash._reinterpolate@^3.0.0:
   resolved "https://registry.yarnpkg.com/lodash._reinterpolate/-/lodash._reinterpolate-3.0.0.tgz#0ccf2d89166af03b3663c796538b75ac6e114d9d"
   integrity sha1-DM8tiRZq8Ds2Y8eWU4t1rG4RTZ0=
 
+lodash.assign@^4.0.0:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/lodash.assign/-/lodash.assign-4.2.0.tgz#0d99f3ccd7a6d261d19bdaeb9245005d285808e7"
+  integrity sha1-DZnzzNem0mHRm9rrkkUAXShYCOc=
+
 lodash.memoize@^4.1.2:
   version "4.1.2"
   resolved "https://registry.yarnpkg.com/lodash.memoize/-/lodash.memoize-4.1.2.tgz#bcc6c49a42a2840ed997f323eada5ecd182e0bfe"
@@ -7588,6 +7625,13 @@ lru-cache@^5.1.1:
   dependencies:
     yallist "^3.0.2"
 
+ltx@^2.5.0, ltx@^2.6.2:
+  version "2.10.0"
+  resolved "https://registry.yarnpkg.com/ltx/-/ltx-2.10.0.tgz#0b794b898e01d9dcc61b54b160e78869003bbb20"
+  integrity sha512-RB4zR6Mrp/0wTNS9WxMvpgfht/7u/8QAC9DpPD19opL/4OASPa28uoliFqeDkLUU8pQ4aeAfATBZmz1aSAHkMw==
+  dependencies:
+    inherits "^2.0.4"
+
 make-dir@^2.0.0, make-dir@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/make-dir/-/make-dir-2.1.0.tgz#5f0310e18b8be898cc07009295a30ae41e91e6f5"
@@ -7627,7 +7671,7 @@ map-visit@^1.0.0:
   dependencies:
     object-visit "^1.0.0"
 
-md5.js@^1.3.4:
+md5.js@^1.3.3, md5.js@^1.3.4:
   version "1.3.5"
   resolved "https://registry.yarnpkg.com/md5.js/-/md5.js-1.3.5.tgz#b5d07b8e3216e3e27cd728d72f70d1e6a342005f"
   integrity sha512-xitP+WxNPcTTOgnTJcrhM0xvdPepipPSf3I8EIpGKeFLjt3PlJLIDG3u8EX53ZIubkb+5U2+3rELYpEhHhzdkg==
@@ -8045,6 +8089,38 @@ node-releases@^1.1.52, node-releases@^1.1.61:
   version "1.1.61"
   resolved "https://registry.yarnpkg.com/node-releases/-/node-releases-1.1.61.tgz#707b0fca9ce4e11783612ba4a2fcba09047af16e"
   integrity sha512-DD5vebQLg8jLCOzwupn954fbIiZht05DAZs0k2u8NStSe6h9XdsuIQL8hSRKYiU8WUQRznmSDrKGbv3ObOmC7g==
+
+node-xmpp-client@^3.0.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/node-xmpp-client/-/node-xmpp-client-3.2.0.tgz#af4527df0cc5abd2690cba2139cc1ecdc81ea189"
+  integrity sha1-r0Un3wzFq9JpDLohOcwezcgeoYk=
+  dependencies:
+    browser-request "^0.3.3"
+    debug "^2.2.0"
+    md5.js "^1.3.3"
+    minimist "^1.2.0"
+    node-xmpp-core "^5.0.9"
+    request "^2.65.0"
+    ws "^1.1.1"
+
+node-xmpp-core@^5.0.9:
+  version "5.0.9"
+  resolved "https://registry.yarnpkg.com/node-xmpp-core/-/node-xmpp-core-5.0.9.tgz#5c28c28edb1fb3f8beba2c6760777613f48f342a"
+  integrity sha1-XCjCjtsfs/i+uixnYHd2E/SPNCo=
+  dependencies:
+    "@xmpp/jid" "^0.0.2"
+    "@xmpp/streamparser" "^0.0.6"
+    "@xmpp/xml" "^0.1.3"
+    debug "^2.2.0"
+    inherits "^2.0.1"
+    lodash.assign "^4.0.0"
+    node-xmpp-tls-connect "^1.0.1"
+    reconnect-core "https://github.com/dodo/reconnect-core/tarball/merged"
+
+node-xmpp-tls-connect@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/node-xmpp-tls-connect/-/node-xmpp-tls-connect-1.0.1.tgz#91ace43ac26b138861b2be478df9df19d61dc5c3"
+  integrity sha1-kazkOsJrE4hhsr5HjfnfGdYdxcM=
 
 nodemon@^2.0.4:
   version "2.0.4"
@@ -9622,6 +9698,11 @@ q@^1.1.2:
   resolved "https://registry.yarnpkg.com/q/-/q-1.5.1.tgz#7e32f75b41381291d04611f1bf14109ac00651d7"
   integrity sha1-fjL3W0E4EpHQRhHxvxQQmsAGUdc=
 
+qbox@0.1.x:
+  version "0.1.7"
+  resolved "https://registry.yarnpkg.com/qbox/-/qbox-0.1.7.tgz#e80f0dc5d09f869d8882168c3f66ac8dd2840f02"
+  integrity sha1-6A8NxdCfhp2IghaMP2asjdKEDwI=
+
 qs@6.7.0:
   version "6.7.0"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.7.0.tgz#41dc1a015e3d581f1621776be31afb2876a9b1bc"
@@ -9952,6 +10033,12 @@ realpath-native@^1.1.0:
   dependencies:
     util.promisify "^1.0.0"
 
+"reconnect-core@https://github.com/dodo/reconnect-core/tarball/merged":
+  version "0.0.1"
+  resolved "https://github.com/dodo/reconnect-core/tarball/merged#b9daf2adc45b19a6cc5fd2f048f8d9406cece498"
+  dependencies:
+    backoff "~2.3.0"
+
 recursive-readdir@2.2.2:
   version "2.2.2"
   resolved "https://registry.yarnpkg.com/recursive-readdir/-/recursive-readdir-2.2.2.tgz#9946fb3274e1628de6e36b2f6714953b4845094f"
@@ -10112,7 +10199,7 @@ request-promise-native@^1.0.5:
     stealthy-require "^1.1.1"
     tough-cookie "^2.3.3"
 
-request@^2.87.0, request@^2.88.0:
+request@^2.65.0, request@^2.87.0, request@^2.88.0:
   version "2.88.2"
   resolved "https://registry.yarnpkg.com/request/-/request-2.88.2.tgz#d73c918731cb5a87da047e207234146f664d12b3"
   integrity sha512-MsvtOrfG9ZcrOwAW+Qi+F6HbD0CWXEh9ou77uOb7FM2WPhwT7smM833PzanhJLsgXjN89Ir6V2PczXNnMpwKhw==
@@ -10604,6 +10691,14 @@ simple-swizzle@^0.2.2:
   integrity sha1-pNprY1/8zMoz9w0Xy5JZLeleVXo=
   dependencies:
     is-arrayish "^0.3.1"
+
+simple-xmpp@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/simple-xmpp/-/simple-xmpp-1.3.1.tgz#b0e6c92898209f6e372213cfeec6b761ef231d97"
+  integrity sha512-o0wGVlI8Q4o0qTz6Kylbo1QPOMVn+DA/vyHHZecqcQ+LK4ZWGe3wtRON9QjHAkSyxB36PoagmiUz4pHADau8Mw==
+  dependencies:
+    node-xmpp-client "^3.0.0"
+    qbox "0.1.x"
 
 sisteransi@^1.0.4:
   version "1.0.5"
@@ -12248,6 +12343,14 @@ ws@1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/ws/-/ws-1.0.1.tgz#7d0b2a2e58cddd819039c29c9de65045e1b310e9"
   integrity sha1-fQsqLljN3YGQOcKcneZQReGzEOk=
+  dependencies:
+    options ">=0.0.5"
+    ultron "1.0.x"
+
+ws@^1.1.1:
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-1.1.5.tgz#cbd9e6e75e09fc5d2c90015f21f0c40875e0dd51"
+  integrity sha512-o3KqipXNUdS7wpQzBHSe180lBGO60SoK0yVo3CYJgb2MkobuWuBX6dhkYP5ORCLd55y+SaflMOV5fqAB53ux4w==
   dependencies:
     options ">=0.0.5"
     ultron "1.0.x"

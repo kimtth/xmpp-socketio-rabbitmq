@@ -1,6 +1,6 @@
 let postId = 1;
 let posts = [];
-const { emitAMQP, ChannelContext } = require('../rabbitmq/emitMQclient');
+const { emitAMQP } = require('../../rabbitmq/v1/emitMQclient');
 const { receiveAMQP } = require('../rabbitmq/receiveMQclient');
 
 

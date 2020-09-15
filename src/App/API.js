@@ -1,7 +1,7 @@
 import * as Config from '../Context/Constants'
 
-export function channelOpen(channel, cb){
-  let URL = Config.apiURL + 'ch';
+export function pubsubOpen(channel, cb){
+  let URL = Config.apiURL + 'start';
   let jsonObject = {
     channel: channel
   }
@@ -25,8 +25,8 @@ export function channelOpen(channel, cb){
   });
 }
 
-export function channelClose(){
-  let URL = Config.apiURL + 'exit';
+export function pubsubClose(){
+  let URL = Config.apiURL + 'stop';
   fetch(URL, {
     method: 'post',
     headers: {

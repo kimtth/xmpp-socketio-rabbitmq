@@ -1,9 +1,11 @@
 const Router = require('koa-router');
-const postsCtrl = require('./posts.ctrl');
+const postsCtrl = require('./v2/posts.ctrl');
 
-const posts = new Router();
+const handler = new Router();
 
-posts.post('/', postsCtrl.write);
-posts.get('/:channel', postsCtrl.read);
+handler.post('/', postsCtrl.write);
+handler.get('/:channel', postsCtrl.read);
+handler.post('/stop', postsCtrl.stop);
+handler.post('/start', postsCtrl.start);
 
-module.exports = posts;
+module.exports = handler;
