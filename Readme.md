@@ -1,4 +1,4 @@
-# Attempts for finding a propr solution.
+# Attempts for finding a proper solution.
 
 # XMPP Server
 
@@ -88,14 +88,14 @@ $ yarn start
 - The Server
 
 ```
-$ yarn nodemon app
+$ yarn nodemon server
 ```
 
 - Deployment
 
 ```
 $ yarn build
-$ node app
+$ node server
 ```
 
 Default Port is 8080. http://localhost:8080
@@ -103,6 +103,13 @@ Default Port is 8080. http://localhost:8080
 ![ref](./doc/socket_demo.gif?raw=true)
 
 # References
+
+Pros and Cons
+
+- MQTT: IOT | Lightweight | Security vulnerabilities | IBM
+- AMQP: JP Morgan | Binary | Erlang | Application Layer | RabbitMQ (Route/Queue/Publish-Subscribe/Topic) | Battery consuming issue on Mobile device | Application-wide notification
+- XMPP: A Communication protocol for messaging | Application Layer | Security | XML based | Decentralization | Goolge Talk
+- WebSocket: Full-duplex communication | Application Layer | Underlying TCP | Browser | Centralization
 
 MQTT uses a more stream-orientated approach, making it easy for low-memory clients to write frames. AMQP uses a buffer-orientated approach, making possible high-performance servers.
 

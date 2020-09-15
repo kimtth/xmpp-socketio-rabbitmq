@@ -35,7 +35,7 @@ const consume = function(cb){
 const stop = function(){
     publisher.stop();
     subscriber.stop();
-    publish.close();
+    publisher.close();
     subscriber.close();
 }
 
