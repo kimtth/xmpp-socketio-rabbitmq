@@ -43,8 +43,7 @@ export default function SimpleTabs(props) {
   const [openMenu, setOpenMenu] = React.useState(false);
   const [allMenuItems, setAllMenuItems] = React.useState({
     mItem1: false,
-    mItem2: false,
-    mItem3: false,
+    mItem2: false
   });
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
 
@@ -59,7 +58,7 @@ export default function SimpleTabs(props) {
   const [messages, setMessages] = useImmer([]);
   const [onlineList, setOnline] = useImmer([]);
 
-  const [channelMQ, setChannelMQ] = React.useState('testService'); //exchange turtle
+  const [channelMQ, setChannelMQ] = React.useState('testService'); //exchange
   const [pubMessage, setPubMessage] = React.useState([]);
   const [subMessage, setSubMessage] = React.useState([]);
 
@@ -148,13 +147,10 @@ export default function SimpleTabs(props) {
   const handleMenuClose = (value) => {
     switch (value) {
       case 'mItem1':
-        setAllMenuItems({ ...allMenuItems, mItem1: true, mItem2: false, mItem3: false })
+        setAllMenuItems({ ...allMenuItems, mItem1: true, mItem2: false })
         break;
       case 'mItem2':
-        setAllMenuItems({ ...allMenuItems, mItem1: false, mItem2: true, mItem3: false })
-        break;
-      case 'mItem3':
-        setAllMenuItems({ ...allMenuItems, mItem1: false, mItem2: false, mItem3: true })
+        setAllMenuItems({ ...allMenuItems, mItem1: false, mItem2: true })
         break;
       default:
         setAllMenuItems({ ...allMenuItems })
@@ -228,9 +224,8 @@ export default function SimpleTabs(props) {
                 open={openMenu}
                 onClose={handleMenuClose}
               >
-                <MenuItem onClick={() => handleMenuClose('mItem1')} selected={allMenuItems.mItem1}>Channel#1</MenuItem>
-                <MenuItem onClick={() => handleMenuClose('mItem2')} selected={allMenuItems.mItem2}>Channel#2</MenuItem>
-                <MenuItem onClick={() => handleMenuClose('mItem3')} selected={allMenuItems.mItem3}>Channel#3</MenuItem>
+                <MenuItem onClick={() => handleMenuClose('mItem1')} selected={allMenuItems.mItem1}>Socket.io</MenuItem>
+                <MenuItem onClick={() => handleMenuClose('mItem2')} selected={allMenuItems.mItem2}>XMPP</MenuItem>
               </Menu>
               <Typography variant="h6" className={classes.title}>
                 Socket.io / Publisher-Subscriber
