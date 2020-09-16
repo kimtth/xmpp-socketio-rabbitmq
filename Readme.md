@@ -33,7 +33,7 @@ ejabberd (Most Popular XMPP server)
 
     http://localhost:5443/bosh (from Browser)
 
-    if you are success, you will reach the below page. 
+    if you are success, you will reach the below page from browser. 
 
 ```bash
 ejabberd ejabberd_http_ws
@@ -47,6 +47,14 @@ This web page is only informative. To use WebSocket connection you need a Jabber
     ID: guest@domain-name Password: guest
 
     ID: guest2@domain-name Password: guest
+    
+- Conclusion of XMPP client using StanzaJS / simple-XMPP
+ 
+ ```
+ StanzaJS: Not sufficient explanation on API documents and few implementation and example. it has to look into deep inside of code. https://github.com/legastero/stanza
+ 
+ simple-xmpp: Wrapper of node-simple-xmpp. It uses deprecated API inside of the core module, not able to make a connection with ejabberd server. https://github.com/simple-xmpp/node-simple-xmpp.git
+ ```
 
 # RabbitMQ with Docker
 
