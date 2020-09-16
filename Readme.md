@@ -51,9 +51,11 @@ This web page is only informative. To use WebSocket connection you need a Jabber
 - Conclusion of XMPP client using StanzaJS / simple-XMPP
  
  ```
- StanzaJS: Not sufficient explanation on API documents and few implementation and example. it has to look into deep inside of code. https://github.com/legastero/stanza
+ StanzaJS: Not sufficient explanation on API documents and few implementation and example. 
+  it has to look into deep inside of code. https://github.com/legastero/stanza
  
- simple-xmpp: Wrapper of node-simple-xmpp. It uses deprecated API inside of the core module, not able to make a connection with ejabberd server. https://github.com/simple-xmpp/node-simple-xmpp.git
+ simple-xmpp: Wrapper of node-simple-xmpp. It uses deprecated API inside of the core module, 
+  not able to make a connection with ejabberd server. https://github.com/simple-xmpp/node-simple-xmpp.git
  ```
 
 # RabbitMQ with Docker
