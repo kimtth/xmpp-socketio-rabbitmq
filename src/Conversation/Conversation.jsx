@@ -32,6 +32,7 @@ import Snackbar from '@material-ui/core/Snackbar';
 import ConfigContext from '../Context/ConfigContext';
 import { pubsubOpen, pubsubClose, emitPub, receiveSub } from '../App/API'
 
+import * as xmpp from 'simple-xmpp';
 
 export default function SimpleTabs(props) {
   const classes = useConversationStyles();
@@ -42,8 +43,8 @@ export default function SimpleTabs(props) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [openMenu, setOpenMenu] = React.useState(false);
   const [allMenuItems, setAllMenuItems] = React.useState({
-    mItem1: false,
-    mItem2: false
+    mItem1: true, //Socket.io
+    mItem2: false //XMPP
   });
   const [openSnackBar, setOpenSnackBar] = React.useState(false);
 
@@ -62,66 +63,112 @@ export default function SimpleTabs(props) {
   const [pubMessage, setPubMessage] = React.useState([]);
   const [subMessage, setSubMessage] = React.useState([]);
 
+  const [xmppFromUser, setXMPPFromUser] = React.useState(`guest@${Config.XMPPdomain}`);
+  const [xmppToUser, setXMPPtoUser] = React.useState(`guest2@${Config.XMPPdomain}`);
+
   useEffect(() => {
     //for socket.io
-    if(state.isSocketMode){
-      socket.connect();
+    socket.connect();
 
-      socket.on('health_check', function (data) {
-        console.log(data);
-      });
+    socket.on('health_check', function (data) {
+      console.log(data);
+    });
 
-      if (id) {
-        socket.emit('join', id, room);
+    if (id) {
+      socket.emit('join', id, room);
+    }
+
+    socket.on('message-queue', (nick, message) => {
+      setMessages(draft => {
+        draft.push([nick, message])
+      })
+    });
+
+    socket.on('update', message => setMessages(draft => {
+      draft.push(['', message]);
+    }))
+
+    socket.on('people-list', people => {
+      let newState = [];
+      for (let person in people) {
+        newState.push([people[person].id, people[person].nick]);
       }
+      setOnline(draft => { draft.push(...newState) });
+      setOpenSnackBar(true);
+    });
 
-      socket.on('message-queue', (nick, message) => {
-        setMessages(draft => {
-          draft.push([nick, message])
-        })
-      });
-
-      socket.on('update', message => setMessages(draft => {
-        draft.push(['', message]);
-      }))
-
-      socket.on('people-list', people => {
-        let newState = [];
-        for (let person in people) {
-          newState.push([people[person].id, people[person].nick]);
-        }
-        setOnline(draft => { draft.push(...newState) });
-        setOpenSnackBar(true);
-      });
-
-      socket.on('add-person', (nick, id) => {
-        setOnline(draft => {
-          draft.push([id, nick])
-        })
-        setOpenSnackBar(true);
+    socket.on('add-person', (nick, id) => {
+      setOnline(draft => {
+        draft.push([id, nick])
       })
+      setOpenSnackBar(true);
+    })
 
-      socket.on('remove-person', id => {
-        setOnline(draft => draft.filter(m => m[0] !== id))
-        setOpenSnackBar(true);
-      })
+    socket.on('remove-person', id => {
+      setOnline(draft => draft.filter(m => m[0] !== id))
+      setOpenSnackBar(true);
+    })
 
-      socket.on('chat-message', (nick, message) => {
-        setMessages(draft => { draft.push([nick, message]) })
-      })
-    } 
+    socket.on('chat-message', (nick, message) => {
+      setMessages(draft => { draft.push([nick, message]) })
+    })
+
     //for amqp
     pubsubOpen(channelMQ, ()=>{
       console.log('amqp--started')
     });
+
+    //for xmpp
+    xmppInit();
+  }, []); //for triggering only at initial loading
+
+  const xmppInit = async () => {
+    //for xmpp
+    xmpp.on('online', function(data) {
+      console.log('Connected with JID: ' + data.jid.user);
+      console.log('Yes, I\'m connected!');
+    });
+
+    xmpp.on('chat', (from, message) => { 
+        xmpp.send(from, message)
+        setMessages(draft => {
+          draft.push([from, message])
+        })
+      }
+    );
+
+    xmpp.on('error', function(err) {
+      console.error(err);
+    });
     
-  }, []);
+    xmpp.on('subscribe', function(account) {
+        if (account !== `guest@${Config.XMPPdomain}`) {
+            xmpp.acceptSubscription(account);
+        }
+    });
+
+    //not working??
+    xmpp.connect({
+      jid         : `guest@${Config.XMPPdomain}`, //for testing id:guest pass:guest
+      password    : 'guest',
+      host        : '127.0.0.1',
+      port        : 5443
+    });
+  }
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
     //socket
     if (newValue === 0 || newValue === 1) {
       actions.setIsSocketMode(true);
+
+      if (newValue === 0) {
+        setXMPPFromUser(`guest@${Config.XMPPdomain}`)
+        setXMPPtoUser(`guest2@${Config.XMPPdomain}`)
+      } else {
+        setXMPPFromUser(`guest2@${Config.XMPPdomain}`)
+        setXMPPtoUser(`guest@${Config.XMPPdomain}`)
+      }
     } else {
       //rabbitmq
       actions.setIsSocketMode(false);
@@ -147,10 +194,14 @@ export default function SimpleTabs(props) {
   const handleMenuClose = (value) => {
     switch (value) {
       case 'mItem1':
+        //socket.io
         setAllMenuItems({ ...allMenuItems, mItem1: true, mItem2: false })
+        actions.setIsXMPP(false);
         break;
       case 'mItem2':
+        //xmpp
         setAllMenuItems({ ...allMenuItems, mItem1: false, mItem2: true })
+        actions.setIsXMPP(true);
         break;
       default:
         setAllMenuItems({ ...allMenuItems })
@@ -165,7 +216,16 @@ export default function SimpleTabs(props) {
 
     if (state.isSocketMode) {
       if (sendMessage.trim() !== '') {
-        socket.emit('chat-message', sendMessage, room);
+        if(state.isXMPP){
+          const msg = {
+            from: xmppFromUser,
+            to: xmppToUser,
+            body: sendMessage
+          }
+          xmpp.send(xmppToUser, sendMessage,'chat') 
+        } else {
+          socket.emit('chat-message', sendMessage, room);
+        }
         setSendMessage('');
       }
     } else {
@@ -189,6 +249,7 @@ export default function SimpleTabs(props) {
     socket.connect();
 
     pubsubClose();
+    xmpp.disconnect();
   }
 
   const handleSnackBarClose = (event, reason) => {

@@ -4,9 +4,49 @@
 
 ejabberd (Most Popular XMPP server)
 
-User: admin@localhost or admin@domain-name
+- User: admin@- localhost or admin@domain-name
 
-Password: e.g. admin (User defined)
+- Password: e.g. admin (User defined)
+
+- Management UI: http://localhost:5280/admin/
+
+- Configuration file:  C:\ProgramData\ejabberd\conf\ejabberd.yml
+
+```bash
+    port: 5443
+    module: ejabberd_http
+    tls: false
+    request_handlers:
+      "/admin": ejabberd_web_admin
+      "/api": mod_http_api
+      "/bosh": mod_bosh
+      "/captcha": ejabberd_captcha
+      "/upload": mod_http_upload
+      "/ws": ejabberd_http_ws
+      "/oauth": ejabberd_oauth
+  -
+```
+
+- Endpoint (Turn-Off the TLS): 
+
+    ws://localhost:5443/ws (WebSocket)
+
+    http://localhost:5443/bosh (from Browser)
+
+    if you are success, you will reach the below page. 
+
+```bash
+ejabberd ejabberd_http_ws
+An implementation of WebSocket protocol
+
+This web page is only informative. To use WebSocket connection you need a Jabber/XMPP client that supports it.
+```
+
+- Creating Testing Account on Management UI
+
+    ID: guest@domain-name Password: guest
+
+    ID: guest2@domain-name Password: guest
 
 # RabbitMQ with Docker
 

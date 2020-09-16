@@ -12,7 +12,7 @@ const socketServer = function (server) {
     })
 
     io.on('connection', (socket) => {
-        socket.emit('health_check', 'connected');
+        socket.emit('health_check', 'socket.io--connected');
 
         socket.on("join", (nick, room) => {
             socket.join(room);
