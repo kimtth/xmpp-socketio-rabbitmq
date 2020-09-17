@@ -30,9 +30,10 @@ import ConversationLogin from './ConversationLogin'
 
 import Snackbar from '@material-ui/core/Snackbar';
 import ConfigContext from '../Context/ConfigContext';
-import { pubsubOpen, pubsubClose, emitPub, receiveSub } from '../App/API'
+import { pubsubOpen, pubsubClose, emitPub, receiveSub } from '../App/API';
 
-import * as xmpp from 'simple-xmpp';
+import { client, xml, jid } from '@xmpp/client';
+import * as debug from "@xmpp/debug";
 
 export default function SimpleTabs(props) {
   const classes = useConversationStyles();
@@ -65,9 +66,22 @@ export default function SimpleTabs(props) {
 
   const [xmppFromUser, setXMPPFromUser] = React.useState(`guest@${Config.XMPPdomain}`);
   const [xmppToUser, setXMPPtoUser] = React.useState(`guest2@${Config.XMPPdomain}`);
+  const [xmppObject, setXMPPObject] = React.useState();
 
   useEffect(() => {
     //for socket.io
+    socketioInit();
+
+    //for amqp
+    pubsubOpen(channelMQ, ()=>{
+      console.log('amqp--started')
+    });
+
+    //for xmpp
+    xmppInit();
+  }, []); //for triggering only at initial loading
+
+  const socketioInit = () => {
     socket.connect();
 
     socket.on('health_check', function (data) {
@@ -112,48 +126,56 @@ export default function SimpleTabs(props) {
     socket.on('chat-message', (nick, message) => {
       setMessages(draft => { draft.push([nick, message]) })
     })
-
-    //for amqp
-    pubsubOpen(channelMQ, ()=>{
-      console.log('amqp--started')
-    });
-
-    //for xmpp
-    xmppInit();
-  }, []); //for triggering only at initial loading
+  }
 
   const xmppInit = async () => {
-    //for xmpp
-    xmpp.on('online', function(data) {
-      console.log('Connected with JID: ' + data.jid.user);
-      console.log('Yes, I\'m connected!');
+    console.log('xmpp-start');
+    const xmpp = await client({
+      service: `ws://${Config.XMPPdomain}:5443/ws`,
+      username: xmppFromUser, //jid.includes('guest') ? jid : "guest",
+      password: "guest",
+    });
+    setXMPPObject(xmpp);
+    
+    debug(xmpp, true);
+    
+    xmpp.on("status", (status) => {
+      console.debug(status);
     });
 
-    xmpp.on('chat', (from, message) => { 
-        xmpp.send(from, message)
-        setMessages(draft => {
-          draft.push([from, message])
-        })
-      }
-    );
-
-    xmpp.on('error', function(err) {
+    xmpp.on("error", (err) => {
       console.error(err);
     });
     
-    xmpp.on('subscribe', function(account) {
-        if (account !== `guest@${Config.XMPPdomain}`) {
-            xmpp.acceptSubscription(account);
-        }
+    xmpp.on("offline", () => {
+      console.log("offline");
+    });
+    
+    xmpp.on("stanza", async (stanza) => {
+      console.log(stanza.root().toString());
+      if (stanza.is("message")) {
+        await xmpp.send(xml("presence", { type: "unavailable" }));
+        await xmpp.stop();
+      }
+    });
+    
+    xmpp.on("online", async () => {
+      // Makes itself available
+      await xmpp.send(xml("presence"));
+    
+      // Sends a chat message to itself
+      const message = xml(
+        "message",
+        { type: "chat", to: xmppToUser },
+        xml("body", {}, "hello world"),
+      );
+      await xmpp.send(message);
     });
 
-    //not working??
-    xmpp.connect({
-      jid         : `guest@${Config.XMPPdomain}`, //for testing id:guest pass:guest
-      password    : 'guest',
-      host        : '127.0.0.1',
-      port        : 5443
-    });
+    //xmpp.js is required to develop group-chat and broadcast by referring to the protocol document.
+    xmpp.on('custom-event', message => console.log('message-custom-event'))
+    
+    xmpp.start().catch(console.error);
   }
 
   const handleTabChange = (event, newValue) => {
@@ -162,6 +184,7 @@ export default function SimpleTabs(props) {
     if (newValue === 0 || newValue === 1) {
       actions.setIsSocketMode(true);
 
+      //xmpp
       if (newValue === 0) {
         setXMPPFromUser(`guest@${Config.XMPPdomain}`)
         setXMPPtoUser(`guest2@${Config.XMPPdomain}`)
@@ -217,12 +240,15 @@ export default function SimpleTabs(props) {
     if (state.isSocketMode) {
       if (sendMessage.trim() !== '') {
         if(state.isXMPP){
-          const msg = {
-            from: xmppFromUser,
-            to: xmppToUser,
-            body: sendMessage
-          }
-          xmpp.send(xmppToUser, sendMessage,'chat') 
+          const message = xml(
+            "message",
+            { type: "chat", to: xmppToUser },
+            xml("body", {}, sendMessage),
+          );
+          xmppObject.emit('online')
+          xmppObject.send(message)
+          xmppObject.emit('custom-event', 'hello')
+          setMessages(draft => { draft.push([xmppFromUser, sendMessage]) })
         } else {
           socket.emit('chat-message', sendMessage, room);
         }
@@ -249,7 +275,7 @@ export default function SimpleTabs(props) {
     socket.connect();
 
     pubsubClose();
-    xmpp.disconnect();
+    xmppObject.stop().catch(console.error);
   }
 
   const handleSnackBarClose = (event, reason) => {

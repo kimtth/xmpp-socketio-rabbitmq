@@ -56,6 +56,8 @@ This web page is only informative. To use WebSocket connection you need a Jabber
  
  simple-xmpp: Wrapper of node-simple-xmpp. It uses deprecated API inside of the core module, 
   not able to make a connection with ejabberd server. https://github.com/simple-xmpp/node-simple-xmpp.git
+
+ xmpp.js: xmpp.js is required to develop group-chat and broadcast by referring to the protocol document.
  ```
 
 # RabbitMQ with Docker
