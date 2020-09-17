@@ -53,19 +53,19 @@ This web page is only informative. To use WebSocket connection you need a Jabber
 These APIs support a wrapper for common events such as connect, disconnect, send. 
 but for handling message-queue and route, broadcast, it needs to develop a custom layer for communicating with ejabberd API. 
  
- ```
- StanzaJS: Not sufficient explanation on API documents and few implementation and example. 
+
+ 1. stanzaJS: Not sufficient explanation on API documents and few implementation and example. 
   it has to look into deep inside of code. https://github.com/legastero/stanza
  
- simple-xmpp: Wrapper of node-simple-xmpp. It uses deprecated API inside of the core module, 
+ 2. simple-xmpp: Wrapper of node-simple-xmpp. It uses deprecated API inside of the core module, 
   not able to make a connection with ejabberd server. https://github.com/simple-xmpp/node-simple-xmpp.git
 
- xmpp.js: xmpp.js is required to develop group-chat and broadcast by referring to the protocol document. 
-  https://github.com/xmppjs/xmpp.js.git
-  It may need to define custom event and listener in the middleware which calls the ejabberd api for processing multi-user chat and user-related data.
+ 3. xmpp.js: xmpp.js is required to develop group-chat and broadcast by referring to the protocol document. https://github.com/xmppjs/xmpp.js.git
+  
+ > It would need to define custom event and listener in the middleware which calls the ejabberd api for processing multi-user chat and user-related data.
   for example, ejabberd <---> middleware (custom event handler & ejabber api caller) <---> client
   middleware. e.g. ejabberd-bridge: python. https://github.com/dirkmoors/pyejabberd.git
- ```
+
 
 # RabbitMQ with Docker
 
