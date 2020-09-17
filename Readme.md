@@ -50,7 +50,7 @@ This web page is only informative. To use WebSocket connection you need a Jabber
     
 - Conclusion of XMPP client using StanzaJS / simple-xmpp / xmpp.js
 
-These APIs support a wrapper for common events such as connect, disconnect, send. 
+> These APIs support a wrapper for common events such as connect, disconnect, send. 
 but for handling message-queue and route, broadcast, it needs to develop a custom layer for communicating with ejabberd API. 
  
 
@@ -63,8 +63,10 @@ but for handling message-queue and route, broadcast, it needs to develop a custo
  3. xmpp.js: xmpp.js is required to develop group-chat and broadcast by referring to the protocol document. https://github.com/xmppjs/xmpp.js.git
   
  > It would need to define custom event and listener in the middleware which calls the ejabberd api for processing multi-user chat and user-related data.
-  for example, ejabberd <---> middleware (custom event handler & ejabber api caller) <---> client
-  middleware. e.g. ejabberd-bridge: python. https://github.com/dirkmoors/pyejabberd.git
+ 
+ > for example, ejabberd <---> middleware (custom event handler & ejabber api caller) <---> client
+  
+ > middleware. e.g. ejabberd-bridge: python. https://github.com/dirkmoors/pyejabberd.git
 
 
 # RabbitMQ with Docker
