@@ -61,13 +61,20 @@ but for handling message-queue and route, broadcast, it needs to develop a custo
   not able to make a connection with ejabberd server. https://github.com/simple-xmpp/node-simple-xmpp.git
 
  3. xmpp.js: xmpp.js is required to develop group-chat and broadcast by referring to the protocol document. https://github.com/xmppjs/xmpp.js.git
-  
- > It would need to define custom event and listener in the middleware which calls the ejabberd api for processing multi-user chat and user-related data.
  
- > for example, ejabberd <---> middleware (custom event handler & ejabber api caller) <---> client
-  
- > middleware. e.g. ejabberd-bridge: python. https://github.com/dirkmoors/pyejabberd.git
 
+  It would need to define custom event and listener in the middleware which calls the ejabberd api for processing multi-user chat and user-related data.
+  
+  for example, ejabberd <---> middleware (custom event handler & ejabber api caller) <---> client 
+  
+  middleware. e.g. ejabberd-bridge: python. https://github.com/dirkmoors/pyejabberd.git
+  
+  ```python
+  # Broadcasting
+    def broadcast(msg):
+        for user in users:
+            xmpp.send(user, msg) # Something similar function is required for emitting the message to the client.
+  ```
 
 # RabbitMQ with Docker
 
@@ -138,7 +145,32 @@ $ [Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", $null, "Machine")
 $ Restart-Service docker
 ```
 
-## The Commands for execution
+# Socket.io specification
+
+https://stackoverflow.com/questions/32674391/io-emit-vs-socket-emit/32675498
+
+```javascript
+socket.emit('message', "this is a test"); //sending to sender-client only
+socket.broadcast.emit('message', "this is a test"); //sending to all clients except sender
+socket.broadcast.to('game').emit('message', 'nice game'); //sending to all clients in 'game' room(channel) except sender
+socket.to('game').emit('message', 'enjoy the game'); //sending to sender client, only if they are in 'game' room(channel)
+socket.broadcast.to(socketid).emit('message', 'for your eyes only'); //sending to individual socketid
+io.emit('message', "this is a test"); //sending to all clients, include sender
+io.in('game').emit('message', 'cool game'); //sending to all clients in 'game' room(channel), include sender
+io.of('myNamespace').emit('message', 'gg'); //sending to all clients in namespace 'myNamespace', include sender
+socket.emit(); //send to all connected clients
+socket.broadcast.emit(); //send to all connected clients except the one that sent the message
+socket.on(); //event listener, can be called on client to execute on server
+io.sockets.socket(); //for emiting to specific clients
+io.sockets.emit(); //send to all connected clients (same as socket.emit)
+io.sockets.on() ; //initial connection from a client.
+
+socket.emit will send back message to sender only,
+io.emit will send message to all the client including sender
+if you want to send message to all but not back to sender then socket.broadcast.emit
+```
+
+# The Commands for execution
 
 - The Client
 
